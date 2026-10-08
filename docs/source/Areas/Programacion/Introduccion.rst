@@ -12,3 +12,13 @@ microcontrolador, ya que PlatformIO es compatible con muchísimos microcontrolad
 
 2. **C++:** Este es un lenguaje de programación que tiene un fuerte enfoque en el control de bajo nivel, lo que nos permite tener una manipulación
 más directa del hardware y de los recursos del microcontrolador, además de ser un lenguaje bastante eficiente en cuanto a su velocidad y tiempo de ejecución.
+
+
+Resolución de retos
+********************
+
+.. toctree::
+   :caption: Algoritmo de resolución de maze
+   :maxdepth: 1
+
+   Planteamiento de resolución de maze<Algoritmo/Planteamiento>

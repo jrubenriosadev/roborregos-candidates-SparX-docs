@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 ##########################
-SparX Docs documentation
+SparX Documentación
 ##########################
 
 Bienvenid@s a la documentación de SparX, equipo de la competencia candidates 2026 por **Roborregos**.
