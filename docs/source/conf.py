@@ -8,8 +8,8 @@
 
 project = 'SparX Docs'
 copyright = '2026, Julian Ruben Rios Aquino'
-author = 'Julian Ruben Rios Aquino'
-release = '1'
+author = 'Equipo SparX 2026'
+release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
