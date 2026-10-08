@@ -1,0 +1,5 @@
+BUILD
+.\.venv\Scripts\python.exe -m sphinx -M html docs/source docs/build
+
+EXE
+start .\docs\build\html\index.html
