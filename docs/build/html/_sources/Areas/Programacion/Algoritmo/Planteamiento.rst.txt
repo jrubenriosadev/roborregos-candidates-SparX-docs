@@ -29,7 +29,7 @@ En este caso, hay que considerar que **NO** estamos esperando encontrar el punto
 el inicial y B el final), sino que estamos esperando encontrar una solución donde el robot pueda escanear todos los colores en el piso (4 en total) antes de hacer
 el bonus final dentro de una cancha desconocida.
 
-**Hablado de una forma técnica, debemos contruir durante la ejecución un modelo del laberinto que no conocemos explorando sus regiones relevantes, alcanzar el objetivo
+**Hablado de una forma un poco más técnica, debemos contruir durante la ejecución un modelo del laberinto que no conocemos explorando sus regiones relevantes, alcanzar el objetivo
 y conservar la trayectoria física realizada para poder reproducirla pero al revés.**
 
 Composición del sistema
@@ -74,7 +74,7 @@ de guardar de alguna manera la información de la posición en la que estamos. P
        Direction dir;
    };
 
-Eso para usar algo como:
+| Eso para usar algo como:
 | x = 2
 | y = 3
 | dir = NORTH
@@ -86,12 +86,74 @@ Posicionamiento vs movimiento
 
 Ahora, debemos considerar esto que es MUY importante.
 
-El algoritmo actualmente está funcionando con ``Posicion{x,y}`` pero ojo aca, el robot usa cosas como:
+El algoritmo actualmente está funcionando con ``Position{x,y}`` pero ojo aca, el robot usa cosas como:
 
 1. metros
 2. grados
 3. velocidad
 4. aceleración
+5. valores de los sensores como de la imu
 
 Es decir, yo puedo decir que dentro de mi algoritmo me dirija a la posición (2,3) pero en el robot eso sería usar
-el navigator para decir algo como girar a EAST, avanzar el tile, detenerse y confirmar la tile.
+el navegador para decir algo como girar a EAST, avanzar el tile, detenerse y confirmar la tile.
+
+Dirección
+**********
+
+Para poder representar las direcciones, anteriormente en el código de la estructura mencione un tipo de dato como
+``Direction dir`` que en términos simples sería usar una enumeración para representar las 4 direcciones cardinales, es decir,
+algo como:
+
+.. code-block:: cpp
+   :caption: Direcciones enum
+
+   enum Direction {
+       NORTH,
+       SOUTH,
+       EAST,
+       WEST
+   };
+
+Conversión de dirección a coordenadas
+**************************************
+
+Primero necesitamos ``Position neighbor(Position p, Direction d)`` para que apartir de este punto, simplemente
+con algun tipo de switch podemos obtener la posición vecina a la que nos queramos mover
+
+.. code-block:: cpp
+   :caption: Vecinos
+
+   Position neighbor(Position p, Direction d) {
+       switch(d) {
+           case NORTH:
+               return Position{p.x, p.y + 1};
+           case SOUTH:
+               return Position{p.x, p.y - 1};
+           case EAST:
+               return Position{p.x + 1, p.y};
+           case WEST:
+               return Position{p.x - 1, p.y};
+       }
+   }
+
+Y así no tenemos que poner ninguna unidad de medida ni nada por el estilo, para dejar independiente ese sistema
+de movimiento con este de navegación.
+
+Introducción de Mapeo
+**********************
+
+Una idea simple de como sería el mapeo del mapa (obviamente dentro del cerebro del robot) sería algo como:
+
+| X X X X X
+| X X X X X
+| X X X X X
+| X X X X X
+| X X X X X
+
+Simplemente es conceptual, pero la idea es que no se puede poner en que lugar hay ciertos obstáculos.
+
+Simplemente se almacenaría en alguna clase llamada **Maze**.
+
+Celdas
+*******
+

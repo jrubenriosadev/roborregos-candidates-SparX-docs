@@ -58,6 +58,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#composicion-del-sistema">Composición del sistema</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#localizacion">Localización</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#posicionamiento-vs-movimiento">Posicionamiento vs movimiento</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#direccion">Dirección</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conversion-de-direccion-a-coordenadas">Conversión de dirección a coordenadas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#introduccion-de-mapeo">Introducción de Mapeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celdas">Celdas</a></li>
 </ul>
 </li>
 </ul>
@@ -121,7 +125,7 @@ de cualquier comunicación directa o indirecta con el robot (aunque si el robot 
 <p>En este caso, hay que considerar que <strong>NO</strong> estamos esperando encontrar el punto más corto de A a B (así me voy a referir al punto inicial y final, donde A es
 el inicial y B el final), sino que estamos esperando encontrar una solución donde el robot pueda escanear todos los colores en el piso (4 en total) antes de hacer
 el bonus final dentro de una cancha desconocida.</p>
-<p><strong>Hablado de una forma técnica, debemos contruir durante la ejecución un modelo del laberinto que no conocemos explorando sus regiones relevantes, alcanzar el objetivo
+<p><strong>Hablado de una forma un poco más técnica, debemos contruir durante la ejecución un modelo del laberinto que no conocemos explorando sus regiones relevantes, alcanzar el objetivo
 y conservar la trayectoria física realizada para poder reproducirla pero al revés.</strong></p>
 </section>
 <section id="composicion-del-sistema">
@@ -164,24 +168,84 @@ de guardar de alguna manera la información de la posición en la que estamos. P
 </pre></div>
 </div>
 </div>
-<p>Eso para usar algo como:
-| x = 2
-| y = 3
-| dir = NORTH</p>
+<div class="line-block">
+<div class="line">Eso para usar algo como:</div>
+<div class="line">x = 2</div>
+<div class="line">y = 3</div>
+<div class="line">dir = NORTH</div>
+</div>
 <p>Eso para representar la tile actual para no depender de coordenadas continuas por asi decirlo.</p>
 </section>
 <section id="posicionamiento-vs-movimiento">
 <h2>Posicionamiento vs movimiento<a class="headerlink" href="#posicionamiento-vs-movimiento" title="Link to this heading"></a></h2>
 <p>Ahora, debemos considerar esto que es MUY importante.</p>
-<p>El algoritmo actualmente está funcionando con <code class="docutils literal notranslate"><span class="pre">Posicion{x,y}</span></code> pero ojo aca, el robot usa cosas como:</p>
+<p>El algoritmo actualmente está funcionando con <code class="docutils literal notranslate"><span class="pre">Position{x,y}</span></code> pero ojo aca, el robot usa cosas como:</p>
 <ol class="arabic simple">
 <li><p>metros</p></li>
 <li><p>grados</p></li>
 <li><p>velocidad</p></li>
 <li><p>aceleración</p></li>
+<li><p>valores de los sensores como de la imu</p></li>
 </ol>
 <p>Es decir, yo puedo decir que dentro de mi algoritmo me dirija a la posición (2,3) pero en el robot eso sería usar
-el navigator para decir algo como girar a EAST, avanzar el tile, detenerse y confirmar la tile.</p>
+el navegador para decir algo como girar a EAST, avanzar el tile, detenerse y confirmar la tile.</p>
+</section>
+<section id="direccion">
+<h2>Dirección<a class="headerlink" href="#direccion" title="Link to this heading"></a></h2>
+<p>Para poder representar las direcciones, anteriormente en el código de la estructura mencione un tipo de dato como
+<code class="docutils literal notranslate"><span class="pre">Direction</span> <span class="pre">dir</span></code> que en términos simples sería usar una enumeración para representar las 4 direcciones cardinales, es decir,
+algo como:</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Direcciones enum</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">Direction</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NORTH</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SOUTH</span><span class="p">,</span>
+<span class="w">    </span><span class="n">EAST</span><span class="p">,</span>
+<span class="w">    </span><span class="n">WEST</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="conversion-de-direccion-a-coordenadas">
+<h2>Conversión de dirección a coordenadas<a class="headerlink" href="#conversion-de-direccion-a-coordenadas" title="Link to this heading"></a></h2>
+<p>Primero necesitamos <code class="docutils literal notranslate"><span class="pre">Position</span> <span class="pre">neighbor(Position</span> <span class="pre">p,</span> <span class="pre">Direction</span> <span class="pre">d)</span></code> para que apartir de este punto, simplemente
+con algun tipo de switch podemos obtener la posición vecina a la que nos queramos mover</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Vecinos</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Position</span><span class="w"> </span><span class="nf">neighbor</span><span class="p">(</span><span class="n">Position</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">Direction</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">NORTH</span><span class="p">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Position</span><span class="p">{</span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">SOUTH</span><span class="p">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Position</span><span class="p">{</span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">EAST</span><span class="p">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Position</span><span class="p">{</span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="p">};</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">WEST</span><span class="p">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Position</span><span class="p">{</span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Y así no tenemos que poner ninguna unidad de medida ni nada por el estilo, para dejar independiente ese sistema
+de movimiento con este de navegación.</p>
+</section>
+<section id="introduccion-de-mapeo">
+<h2>Introducción de Mapeo<a class="headerlink" href="#introduccion-de-mapeo" title="Link to this heading"></a></h2>
+<p>Una idea simple de como sería el mapeo del mapa (obviamente dentro del cerebro del robot) sería algo como:</p>
+<div class="line-block">
+<div class="line">X X X X X</div>
+<div class="line">X X X X X</div>
+<div class="line">X X X X X</div>
+<div class="line">X X X X X</div>
+<div class="line">X X X X X</div>
+</div>
+<p>Simplemente es conceptual, pero la idea es que no se puede poner en que lugar hay ciertos obstáculos.</p>
+<p>Simplemente se almacenaría en alguna clase llamada <strong>Maze</strong>.</p>
+</section>
+<section id="celdas">
+<h2>Celdas<a class="headerlink" href="#celdas" title="Link to this heading"></a></h2>
 </section>
 </section>
 
