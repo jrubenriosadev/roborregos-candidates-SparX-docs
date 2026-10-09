@@ -246,6 +246,25 @@ de movimiento con este de navegación.</p>
 </section>
 <section id="celdas">
 <h2>Celdas<a class="headerlink" href="#celdas" title="Link to this heading"></a></h2>
+<p>Volviendo a lo mismo, el robot no tiene idea de dónde está ni <strong>qué tiene alrededor</strong>, ya «resolvimos» lo primero,
+pero ahora vamos con lo segundo.</p>
+<p>Primero lo primero, ya que estamos rodeados de paredes debemos definir ciertos estados para saber si podemos avanzar o no (o si no sabemos)</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Vecinos</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">WallState</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">UNKNOWN</span><span class="p">,</span>
+<span class="w">    </span><span class="n">NAN</span><span class="p">,</span>
+<span class="w">    </span><span class="n">WALL</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">WallState</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NONE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STAIRS</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RAMP</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 

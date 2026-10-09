@@ -162,4 +162,18 @@ pero ahora vamos con lo segundo.
 
 Primero lo primero, ya que estamos rodeados de paredes debemos definir ciertos estados para saber si podemos avanzar o no (o si no sabemos)
 
-.. 
+.. code-block:: cpp
+    :caption: Vecinos
+
+    enum class WallState {
+        UNKNOWN,
+        NAN,
+        WALL   
+    };
+
+    enum class WallState {
+        NONE,
+        STAIRS,
+        RAMP   
+    };
+
