@@ -7,6 +7,8 @@ El motor usado fue un **jga-125 371**, las especificaciones de este motor las pu
 Encabezado (header)
 ********************
 
+El propósito de la interfaz es abstraer todo el control del movimiento del motor (por su controlador) y la lectura de su encoder.
+
 .. code-block:: cpp
     :caption: Header motor.cpp
 
@@ -92,3 +94,234 @@ Encabezado (header)
     #endif
 
 Se ve que es mucho pero vayamos desglosando.
+
+Interfaz
+*********
+
+Primero la definimos, el punto de hacer una interfaz (aunque se asume que ya se conoce algo de C++) es abstraer el control del movimiento
+del motor (con su debido controlador) y las lecturas de su encoder de cuadratura mediante interrupciones del hardware (eso de las interrupciones
+es clave).
+
+Inclusiones y Directivas
+*************************
+
+Primero las guardas de inclusión (es lo de ``#ifndef DEF_MOTOR``, ``#define DEF_MOTOR``, ``#endif``). Esto nos evita la redefinición
+de la clase si el encabezado es incluído más de una vez en el código. Y la librería de ``Arduino.h`` nos da básicamente los tipos de datos nativos
+y funciones de GPIO.
+
+Estructura
+***********
+
+- El constructor sirve para establecer la configuración del hardware del motor (como los pines) y la geometría del sistema (como el diámetro de la rueda o si se invierte).
+
+- El destructor por su parte libera la interrupción asociada, simplemente detiene el motor y limpia la instancia.
+
+- Luego están las partes de ``Motor(const Motor&) = delete;`` y ``Motor& operator = (const Motor&) = delete;``.
+
+Despacho de Interrupciones
+***************************
+
+Este es un mecanismo que tiene un nombre algo complejo en inglés. Se llama IRS Dynamic Binding y hay que entender primero una cosa, 
+el entorno de la ESP32 o Arduino no permite pasar métodos miembro no estáticos, osea, el de ``void Motor::handleEncoder()`` directamente
+a la funcion de ``attachInterrupt()`` porque necesita un puntero al estilo C, en pocas palabras, el problema es que básicamente tenemos
+que lograr hacer eso sin salirnos del POO.
+
+Para resolverlo, implementamos un patrón de **IRS Dispatcher** via **Template Wrapper**.
+Si quieres saber más de cómo funciona, puedes darle click `aqui <https://www.reddit.com/r/embedded/comments/way0ta/how_can_i_write_effective_isr_handlers_in_c_code/>`_.
+
+- El ``static constexpr uint8_t C = 8`` es el límite de las instancias concurrentes gestionables (en pocas palabras 8 motores máximos).
+
+- El ``static Motor* instances[C]`` es el arreglo de punteros a instancias de la clase motor.
+
+Pero aquí viene lo importante
+
+- El ``template<uint8_t> static void isWrapper()`` es un método (plantilla) que nos sirve como una especie de trampolin (Puedes revisar mas a detalle en `trampoline function <https://stackoverflow.com/questions/189725/what-is-a-trampoline-function>`_ ) que convierte la llamada en estilo de C a la ejecución del métido de la instancia correspondiente (``instances[I]->handleEncoder()``)
+
+
+Archivo Cpp
+************
+
+.. code-block:: cpp
+    :caption: Motor.cpp
+
+    #include "Motor.hpp"
+    #include <math.h>
+
+    Motor* Motor::instances[Motor::C] = {nullptr};
+
+    template<uint8_t I>
+    void Motor::isrWrapper() {
+        if(instances[I] != nullptr) {
+            instances[I]->handleEncoder();
+        }
+    }
+
+    typedef void (*ISRFunc)();
+    static const ISRFunc isrTable[8] = {
+        &Motor::isrWrapper<0>, 
+        &Motor::isrWrapper<1>,
+        &Motor::isrWrapper<2>,
+        &Motor::isrWrapper<3>,
+        &Motor::isrWrapper<4>,
+        &Motor::isrWrapper<5>,
+        &Motor::isrWrapper<6>,
+        &Motor::isrWrapper<7>
+    };
+
+    Motor::Motor(
+        uint8_t pinIN1, uint8_t pinIN2, uint8_t pinPWM, uint8_t pinEncoderA, uint8_t pinEncoderB, float ppr, float wheelDiameterM, bool inverted) 
+        : _pinIN1(pinIN1), _pinIN2(pinIN2), _pinPWM(pinPWM), _pinEncoderA(pinEncoderA), _pinEncoderB(pinEncoderB), _inverted(inverted), _ppr(ppr), _wheelDiameter(wheelDiameterM), e_count(0), _lastInterruptTime(0), last_count(0), last_vel_time(0), current_rpm(0.0f), current_radps(0.0f), _slotIndex(255) {}
+
+    Motor::~Motor() {
+        stop();
+        detachInterrupt(digitalPinToInterrupt(_pinEncoderA));
+        if(_slotIndex < C) {
+            instances[_slotIndex] = nullptr;
+        }
+    }
+
+    void Motor::init() {
+        pinMode(_pinIN1, OUTPUT);
+        pinMode(_pinIN2, OUTPUT);
+        pinMode(_pinPWM, OUTPUT);
+
+        pinMode(_pinEncoderA, INPUT_PULLUP);
+        pinMode(_pinEncoderB, INPUT_PULLUP);
+        
+        stop();
+        resetEncoder();
+
+        for(uint8_t i = 0; i < C; ++i) {
+            if(instances[i] == nullptr) {
+                _slotIndex = i;
+                instances[i] = this;
+                attachInterrupt(digitalPinToInterrupt(_pinEncoderA), isrTable[i], RISING);
+                break;
+            }
+        }
+    }
+
+    void Motor::move(int speed) {
+        speed = constrain(speed, -255, 255);
+
+        if(_inverted) speed = -speed;
+
+        if(speed > 0) {
+            digitalWrite(_pinIN1, HIGH);
+            digitalWrite(_pinIN2, LOW);
+            analogWrite(_pinPWM, speed);
+        } else if(speed < 0) {
+            digitalWrite(_pinIN1, LOW);
+            digitalWrite(_pinIN2, HIGH);
+            analogWrite(_pinPWM, -speed);
+        } else {
+            stop();
+        }
+    }
+
+    void Motor::forward(uint8_t speed) {
+        move((int)speed);
+    }
+
+    void Motor::backward(uint8_t speed) {
+        move(-(int)speed);
+    }
+
+    void Motor::stop() {
+        digitalWrite(_pinIN1, LOW);
+        digitalWrite(_pinIN2, LOW);
+        analogWrite(_pinPWM, 0);
+    }
+
+    void Motor::brake() {
+        digitalWrite(_pinIN1, HIGH);
+        digitalWrite(_pinIN2, HIGH);
+        analogWrite(_pinPWM, 255);
+    }
+
+    void Motor::setPPR(float ppr) {
+        if(ppr > 0) _ppr = ppr;
+    } 
+
+    void Motor::setWheelDiameter(float diameterM) {
+        if(diameterM > 0) _wheelDiameter = diameterM;
+    } 
+
+    void Motor::setInverted(bool i) {
+        _inverted = i;
+    }
+
+    float Motor::getPPR() const { return _ppr; }
+    float Motor::getWheelDiameter() const { return _wheelDiameter; }
+    bool Motor::isInverted() const { return _inverted; }
+
+    long Motor::getEncoder() const {
+        noInterrupts();
+        const long c = e_count;
+        interrupts();
+        return c;
+    }
+
+    void Motor::resetEncoder() {
+        noInterrupts();
+        e_count = 0;
+        last_count = 0;
+        interrupts();
+        last_vel_time = micros();
+    }
+
+    float Motor::getRevolutions() const  {
+        return (float)getEncoder() / _ppr;
+    }
+
+    float Motor::getRadians() const {
+        return getRevolutions() * 2.0f * M_PI;
+    }
+
+    float Motor::getDistanceMeters() const {
+        return getRevolutions() * M_PI * _wheelDiameter;
+    }
+
+    float Motor::updateVelocity() {
+        unsigned long currentTime = micros();
+        unsigned long dt = currentTime - last_vel_time;
+
+        if(dt < 1000) return current_radps;
+
+        long currentE = getEncoder();
+        long delta = currentE - last_count;
+
+        last_count = currentE;
+        last_vel_time = currentTime;
+
+        float dtSeconds = (float)dt / 1000000.0f;
+        float deltaRev = (float)delta / _ppr;
+
+        current_radps = (deltaRev * 2.0f * M_PI) / dtSeconds;
+        current_rpm = (deltaRev / dtSeconds) * 60.0f;
+
+        return current_radps;
+    }
+
+    float Motor::getRPM() const { return current_rpm; }
+    float Motor::getRadSec() const { return current_radps; }
+    float Motor::getSpeedMPS() const { return current_radps * (_wheelDiameter * 0.5f); }
+
+    void Motor::handleEncoder() {
+        unsigned long now = micros();
+        
+        if (now - _lastInterruptTime < 30) { 
+            return;
+        }
+        _lastInterruptTime = now;
+
+        const bool a = digitalRead(_pinEncoderA);
+        const bool b = digitalRead(_pinEncoderB);
+        
+        int ipp = (a != b) ? 1 : -1;
+        if(_inverted) ipp = -ipp;
+        e_count += ipp;
+    }
+
+Del mismo modo, se puede ver algo complejo al inicio, pero vamos desglosando el código para ir viendo que tal.
+

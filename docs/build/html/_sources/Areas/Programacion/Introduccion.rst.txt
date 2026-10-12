@@ -3,6 +3,8 @@
 #####################
 
 Dentro de la programación de RIB-EYE se utilizaron distintas herramientas para la resolución de los retos.
+Las siguientes explicaciones de código son asumiendo que ya se tienen ciertos conocimientos previos de C++ y programación de 
+microcontroladores como Arduino.
 
 Herramientas utilizadas
 ************************

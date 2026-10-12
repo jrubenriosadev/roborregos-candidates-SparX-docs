@@ -61,6 +61,10 @@
 <li class="toctree-l4"><a class="reference internal" href="BNO055.html">Unidad de Medicion Inercial (imu)</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
 </ul>
 </li>
@@ -106,6 +110,7 @@
 <p>El motor usado fue un <strong>jga-125 371</strong>, las especificaciones de este motor las pueden encontrar dentro de esta documentación.</p>
 <section id="encabezado-header">
 <h2>Encabezado (header)<a class="headerlink" href="#encabezado-header" title="Link to this heading"></a></h2>
+<p>El propósito de la interfaz es abstraer todo el control del movimiento del motor (por su controlador) y la lectura de su encoder.</p>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">Header motor.cpp</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef DEF_MOTOR</span>
@@ -192,6 +197,230 @@
 </div>
 </div>
 <p>Se ve que es mucho pero vayamos desglosando.</p>
+</section>
+<section id="interfaz">
+<h2>Interfaz<a class="headerlink" href="#interfaz" title="Link to this heading"></a></h2>
+<p>Primero la definimos, el punto de hacer una interfaz (aunque se asume que ya se conoce algo de C++) es abstraer el control del movimiento
+del motor (con su debido controlador) y las lecturas de su encoder de cuadratura mediante interrupciones del hardware (eso de las interrupciones
+es clave).</p>
+</section>
+<section id="inclusiones-y-directivas">
+<h2>Inclusiones y Directivas<a class="headerlink" href="#inclusiones-y-directivas" title="Link to this heading"></a></h2>
+<p>Primero las guardas de inclusión (es lo de <code class="docutils literal notranslate"><span class="pre">#ifndef</span> <span class="pre">DEF_MOTOR</span></code>, <code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">DEF_MOTOR</span></code>, <code class="docutils literal notranslate"><span class="pre">#endif</span></code>). Esto nos evita la redefinición
+de la clase si el encabezado es incluído más de una vez en el código. Y la librería de <code class="docutils literal notranslate"><span class="pre">Arduino.h</span></code> nos da básicamente los tipos de datos nativos
+y funciones de GPIO.</p>
+</section>
+<section id="estructura">
+<h2>Estructura<a class="headerlink" href="#estructura" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>El constructor sirve para establecer la configuración del hardware del motor (como los pines) y la geometría del sistema (como el diámetro de la rueda o si se invierte).</p></li>
+<li><p>El destructor por su parte libera la interrupción asociada, simplemente detiene el motor y limpia la instancia.</p></li>
+<li><p>Luego están las partes de <code class="docutils literal notranslate"><span class="pre">Motor(const</span> <span class="pre">Motor&amp;)</span> <span class="pre">=</span> <span class="pre">delete;</span></code> y <code class="docutils literal notranslate"><span class="pre">Motor&amp;</span> <span class="pre">operator</span> <span class="pre">=</span> <span class="pre">(const</span> <span class="pre">Motor&amp;)</span> <span class="pre">=</span> <span class="pre">delete;</span></code>.</p></li>
+</ul>
+</section>
+<section id="despacho-de-interrupciones">
+<h2>Despacho de Interrupciones<a class="headerlink" href="#despacho-de-interrupciones" title="Link to this heading"></a></h2>
+<p>Este es un mecanismo que tiene un nombre algo complejo en inglés. Se llama IRS Dynamic Binding y hay que entender primero una cosa,
+el entorno de la ESP32 o Arduino no permite pasar métodos miembro no estáticos, osea, el de <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">Motor::handleEncoder()</span></code> directamente
+a la funcion de <code class="docutils literal notranslate"><span class="pre">attachInterrupt()</span></code> porque necesita un puntero al estilo C, en pocas palabras, el problema es que básicamente tenemos
+que lograr hacer eso sin salirnos del POO.</p>
+<p>Para resolverlo, implementamos un patrón de <strong>IRS Dispatcher</strong> via <strong>Template Wrapper</strong>.
+Si quieres saber más de cómo funciona, puedes darle click <a class="reference external" href="https://www.reddit.com/r/embedded/comments/way0ta/how_can_i_write_effective_isr_handlers_in_c_code/">aqui</a>.</p>
+<ul class="simple">
+<li><p>El <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">constexpr</span> <span class="pre">uint8_t</span> <span class="pre">C</span> <span class="pre">=</span> <span class="pre">8</span></code> es el límite de las instancias concurrentes gestionables (en pocas palabras 8 motores máximos).</p></li>
+<li><p>El <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">Motor*</span> <span class="pre">instances[C]</span></code> es el arreglo de punteros a instancias de la clase motor.</p></li>
+</ul>
+<p>Pero aquí viene lo importante</p>
+<ul class="simple">
+<li><p>El <code class="docutils literal notranslate"><span class="pre">template&lt;uint8_t&gt;</span> <span class="pre">static</span> <span class="pre">void</span> <span class="pre">isWrapper()</span></code> es un método (plantilla) que nos sirve como una especie de trampolin (Puedes revisar mas a detalle en <a class="reference external" href="https://stackoverflow.com/questions/189725/what-is-a-trampoline-function">trampoline function</a> ) que convierte la llamada en estilo de C a la ejecución del métido de la instancia correspondiente (<code class="docutils literal notranslate"><span class="pre">instances[I]-&gt;handleEncoder()</span></code>)</p></li>
+</ul>
+</section>
+<section id="archivo-cpp">
+<h2>Archivo Cpp<a class="headerlink" href="#archivo-cpp" title="Link to this heading"></a></h2>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Motor.cpp</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"Motor.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span>
+
+<span class="n">Motor</span><span class="o">*</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">instances</span><span class="p">[</span><span class="n">Motor</span><span class="o">::</span><span class="n">C</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="nb">nullptr</span><span class="p">};</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">I</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">instances</span><span class="p">[</span><span class="n">I</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">instances</span><span class="p">[</span><span class="n">I</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">handleEncoder</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ISRFunc</span><span class="p">)();</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">ISRFunc</span><span class="w"> </span><span class="n">isrTable</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">4</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">5</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">6</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">Motor</span><span class="o">::</span><span class="n">isrWrapper</span><span class="o">&lt;</span><span class="mi">7</span><span class="o">&gt;</span>
+<span class="p">};</span>
+
+<span class="n">Motor</span><span class="o">::</span><span class="n">Motor</span><span class="p">(</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pinIN1</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pinIN2</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pinPWM</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pinEncoderA</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pinEncoderB</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">ppr</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">wheelDiameterM</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">inverted</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">_pinIN1</span><span class="p">(</span><span class="n">pinIN1</span><span class="p">),</span><span class="w"> </span><span class="n">_pinIN2</span><span class="p">(</span><span class="n">pinIN2</span><span class="p">),</span><span class="w"> </span><span class="n">_pinPWM</span><span class="p">(</span><span class="n">pinPWM</span><span class="p">),</span><span class="w"> </span><span class="n">_pinEncoderA</span><span class="p">(</span><span class="n">pinEncoderA</span><span class="p">),</span><span class="w"> </span><span class="n">_pinEncoderB</span><span class="p">(</span><span class="n">pinEncoderB</span><span class="p">),</span><span class="w"> </span><span class="n">_inverted</span><span class="p">(</span><span class="n">inverted</span><span class="p">),</span><span class="w"> </span><span class="n">_ppr</span><span class="p">(</span><span class="n">ppr</span><span class="p">),</span><span class="w"> </span><span class="n">_wheelDiameter</span><span class="p">(</span><span class="n">wheelDiameterM</span><span class="p">),</span><span class="w"> </span><span class="n">e_count</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">_lastInterruptTime</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">last_count</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">last_vel_time</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">current_rpm</span><span class="p">(</span><span class="mf">0.0f</span><span class="p">),</span><span class="w"> </span><span class="n">current_radps</span><span class="p">(</span><span class="mf">0.0f</span><span class="p">),</span><span class="w"> </span><span class="n">_slotIndex</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="n">Motor</span><span class="o">::~</span><span class="n">Motor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="n">detachInterrupt</span><span class="p">(</span><span class="n">digitalPinToInterrupt</span><span class="p">(</span><span class="n">_pinEncoderA</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">_slotIndex</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">instances</span><span class="p">[</span><span class="n">_slotIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">init</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">_pinIN1</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">_pinIN2</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">_pinPWM</span><span class="p">,</span><span class="w"> </span><span class="n">OUTPUT</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">_pinEncoderA</span><span class="p">,</span><span class="w"> </span><span class="n">INPUT_PULLUP</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pinMode</span><span class="p">(</span><span class="n">_pinEncoderB</span><span class="p">,</span><span class="w"> </span><span class="n">INPUT_PULLUP</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="n">resetEncoder</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">C</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">instances</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">_slotIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">            </span><span class="n">instances</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">;</span>
+<span class="w">            </span><span class="n">attachInterrupt</span><span class="p">(</span><span class="n">digitalPinToInterrupt</span><span class="p">(</span><span class="n">_pinEncoderA</span><span class="p">),</span><span class="w"> </span><span class="n">isrTable</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">RISING</span><span class="p">);</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">speed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span><span class="w"> </span><span class="mi">-255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">_inverted</span><span class="p">)</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">speed</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN1</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN2</span><span class="p">,</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">        </span><span class="n">analogWrite</span><span class="p">(</span><span class="n">_pinPWM</span><span class="p">,</span><span class="w"> </span><span class="n">speed</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN1</span><span class="p">,</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">        </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN2</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">        </span><span class="n">analogWrite</span><span class="p">(</span><span class="n">_pinPWM</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">speed</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">forward</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">speed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">move</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">speed</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">backward</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">speed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">speed</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">stop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN1</span><span class="p">,</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN2</span><span class="p">,</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">    </span><span class="n">analogWrite</span><span class="p">(</span><span class="n">_pinPWM</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">brake</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN1</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">_pinIN2</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">    </span><span class="n">analogWrite</span><span class="p">(</span><span class="n">_pinPWM</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">setPPR</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">ppr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">ppr</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">_ppr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ppr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">setWheelDiameter</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">diameterM</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">diameterM</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">_wheelDiameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diameterM</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">setInverted</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_inverted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getPPR</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_ppr</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getWheelDiameter</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_wheelDiameter</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">isInverted</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_inverted</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">long</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getEncoder</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">noInterrupts</span><span class="p">();</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e_count</span><span class="p">;</span>
+<span class="w">    </span><span class="n">interrupts</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">resetEncoder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">noInterrupts</span><span class="p">();</span>
+<span class="w">    </span><span class="n">e_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">last_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">interrupts</span><span class="p">();</span>
+<span class="w">    </span><span class="n">last_vel_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getRevolutions</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">getEncoder</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">_ppr</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getRadians</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">getRevolutions</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getDistanceMeters</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">getRevolutions</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">_wheelDiameter</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">updateVelocity</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">currentTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_vel_time</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">dt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_radps</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">currentE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getEncoder</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentE</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_count</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">last_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">last_vel_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentTime</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">dtSeconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">dt</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000000.0f</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">deltaRev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">delta</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">_ppr</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">current_radps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">deltaRev</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dtSeconds</span><span class="p">;</span>
+<span class="w">    </span><span class="n">current_rpm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">deltaRev</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dtSeconds</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60.0f</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">current_radps</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getRPM</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_rpm</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getRadSec</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_radps</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">getSpeedMPS</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_radps</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">_wheelDiameter</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5f</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">Motor</span><span class="o">::</span><span class="n">handleEncoder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">_lastInterruptTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">_lastInterruptTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digitalRead</span><span class="p">(</span><span class="n">_pinEncoderA</span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digitalRead</span><span class="p">(</span><span class="n">_pinEncoderB</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">_inverted</span><span class="p">)</span><span class="w"> </span><span class="n">ipp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">ipp</span><span class="p">;</span>
+<span class="w">    </span><span class="n">e_count</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ipp</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Del mismo modo, se puede ver algo complejo al inicio, pero vamos desglosando el código para ir viendo que tal.</p>
 </section>
 </section>
 
