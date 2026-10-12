@@ -176,3 +176,4 @@ Primero lo primero, ya que estamos rodeados de paredes debemos definir ciertos e
         STAIRS,
         RAMP   
     };
+

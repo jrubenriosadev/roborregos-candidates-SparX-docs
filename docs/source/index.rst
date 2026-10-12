@@ -7,7 +7,7 @@
 SparX Documentación
 ##########################
 
-Bienvenid@s a la documentación de SparX, equipo de la competencia candidates 2026 por **Roborregos**.
+Bienvenid@s a la documentación de **SparX**, equipo de la competencia **candidates 2026 por Roborregos**.
 En este apartado encontrarás información de los retos, y todo lo que necesites saber acerca de nuestro robot: **RIB - EYE**
 
 

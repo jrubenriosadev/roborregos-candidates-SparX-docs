@@ -18,6 +18,32 @@ Resolución de retos
 ********************
 
 .. toctree::
+   :caption: Componentes
+   :maxdepth: 2
+
+   Configuración de componentes <ComponentesProgra>
+
+.. toctree::
+   :caption: PID
+   :maxdepth: 2
+
+   Introducción <PID/IntroduccionPID>
+
+.. toctree::
+   :caption: Contenedor y Máquina de Estados
+   :maxdepth: 2
+
+   Introducción al contenedor (RobotContainer) <Contenedor/Introduccion>
+   Introducción a la máquina de estados (StateMachine) <MaquinaEstados/Introduccion>
+
+.. toctree::
+   :caption: Subsistemas
+   :maxdepth: 2
+
+   Introducción a los subsistemas <Subsistemas/Introduccion>
+
+
+.. toctree::
    :caption: Algoritmo de resolución de maze
    :maxdepth: 1
 
