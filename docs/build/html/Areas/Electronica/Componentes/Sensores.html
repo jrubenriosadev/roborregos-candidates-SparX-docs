@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensores &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Motores y control de motores" href="Actuadores.html" />
+    <link rel="prev" title="Área de Electrónica" href="../Introduccion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Electrónica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#componentes-finales">Componentes finales</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#cronologia">Cronología</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sensores</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#primeras-pruebas">Primeras pruebas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resumen-de-decisiones">Resumen de decisiones</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ultrasonicos-divisor-de-voltaje">Ultrasónicos: divisor de voltaje</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bus-i2c-y-direcciones">Bus I2C y direcciones</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#colocacion-del-bno055">Colocación del BNO055</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Alimentacion.html">Alimentación y filtrado</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/Esquematico.html">Esquemático</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/PCB.html">PCB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Pruebas/Pruebas.html">Pruebas y problemas encontrados</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Electrónica</a></li>
+      <li class="breadcrumb-item active">Sensores</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Electronica/Componentes/Sensores.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sensores">
+<h1>Sensores<a class="headerlink" href="#sensores" title="Link to this heading"></a></h1>
+<p>Esta página resume qué sensores se probaron, qué problemas tuvieron y cuáles se eligieron al final. Para ver cómo se programa cada uno, consulta
+<a class="reference internal" href="../../Programacion/ComponentesProgra.html"><span class="doc">Programación de componentes</span></a>.</p>
+<section id="primeras-pruebas">
+<h2>Primeras pruebas<a class="headerlink" href="#primeras-pruebas" title="Link to this heading"></a></h2>
+<p>Durante la semana 2 se probaron con la ESP32 el <strong>ultrasónico</strong>, el <strong>TCS34725</strong> y el <strong>MPU HW-123</strong> (un módulo parecido al MPU6050), junto con los actuadores del prototipo.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/prueba_sensores_1.png"><img alt="../../../_images/prueba_sensores_1.png" src="../../../_images/prueba_sensores_1.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primeras pruebas de actuadores y sensores funcionando juntos con la ESP32</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../../_images/prueba_sensores_2.png"><img alt="../../../_images/prueba_sensores_2.png" src="../../../_images/prueba_sensores_2.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primeras pruebas de actuadores y sensores funcionando juntos con la ESP32 (otra vista)</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="resumen-de-decisiones">
+<h2>Resumen de decisiones<a class="headerlink" href="#resumen-de-decisiones" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 40.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Sensor</p></th>
+<th class="head"><p>Problema encontrado</p></th>
+<th class="head"><p>Decisión</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Ultrasónico</p></td>
+<td><p>Fácil de incorporar, pero las mediciones tenían <strong>mucho ruido</strong>.</p></td>
+<td><p>Se buscaron alternativas láser (VL53L0X). Se conservaron para los <strong>laterales</strong>, donde su rango a corta distancia destaca más.</p></td>
+</tr>
+<tr class="row-odd"><td><p>VL53L0X</p></td>
+<td><p>Al conectarlos al bus I2C hubo muchos problemas.</p></td>
+<td><p>Se creó un <strong>segundo canal I2C</strong> con otros dos pines.</p></td>
+</tr>
+<tr class="row-even"><td><p>MPU HW-123 / MPU6050</p></td>
+<td><p>No era un 6050 típico, y no era compatible con las librerías. Después, las lecturas no eran precisas para conocer la posición del robot.</p></td>
+<td><p>Se reemplazó por el <strong>BNO055</strong>, que usan los robots de RoBorregos.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BNO055</p></td>
+<td><p>Una de las unidades dejó de dar lecturas durante las pruebas.</p></td>
+<td><p>Se cambió por otra unidad y no hubo más problemas.</p></td>
+</tr>
+<tr class="row-even"><td><p>TCS34725</p></td>
+<td><p>Se necesitaba probarlo con colores parecidos a los de la competencia.</p></td>
+<td><p>Se probó con un LED RGB de cátodo común y hojas de colores similares a los de la competencia.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cámara OV7670 (VGA)</p></td>
+<td><p>Las conexiones y todo el sistema serían más complicados de implementar con la Raspberry.</p></td>
+<td><p>Se reemplazó por una cámara con conexión <strong>CSI</strong>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ultrasonicos-divisor-de-voltaje">
+<h2>Ultrasónicos: divisor de voltaje<a class="headerlink" href="#ultrasonicos-divisor-de-voltaje" title="Link to this heading"></a></h2>
+<p>Los ultrasónicos operan a <strong>5 V</strong>, pero los pines GPIO de la ESP32 trabajan a <strong>3.3 V</strong>. Si la señal <strong>ECHO</strong> llega directo a la ESP32 podría dañarla,
+así que se usa un <strong>divisor de voltaje</strong> con una resistencia de <strong>1 kΩ</strong> y una de <strong>2 kΩ</strong>.</p>
+<div class="math notranslate nohighlight">
+\[V_{out} = V_{in} \cdot \frac{R_2}{R_1 + R_2} = 5\,\text{V} \cdot \frac{2\,\text{k}\Omega}{1\,\text{k}\Omega + 2\,\text{k}\Omega} \approx 3.3\,\text{V}\]</div>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Un voltaje de 5 V directo a un pin de la ESP32 puede dañarla. Siempre revisa el voltaje de salida de un sensor antes de conectarlo.</p>
+</div>
+</section>
+<section id="bus-i2c-y-direcciones">
+<h2>Bus I2C y direcciones<a class="headerlink" href="#bus-i2c-y-direcciones" title="Link to this heading"></a></h2>
+<p>Todos los sensores, <strong>excepto los ultrasónicos</strong>, se comunican por <strong>I2C</strong>, lo que ahorró muchos pines de la ESP32.</p>
+<ul class="simple">
+<li><p>El <strong>BNO055</strong> tiene un pin <strong>ADD</strong> que se conectó a <strong>GND</strong> para darle la dirección <strong>0x28</strong>.</p></li>
+<li><p>Así, el <strong>TCS34725</strong> puede usar la dirección <strong>0x29</strong>, sin necesidad de configurar nada por software.</p></li>
+<li><p>Los <strong>VL53L0X</strong> van en un <strong>segundo canal I2C</strong> con otros dos pines de la ESP32.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Si dos dispositivos I2C comparten la misma dirección no pueden estar en el mismo bus. Antes de conectar algo nuevo, revisa su dirección en la hoja de datos.</p>
+</div>
+</section>
+<section id="colocacion-del-bno055">
+<h2>Colocación del BNO055<a class="headerlink" href="#colocacion-del-bno055" title="Link to this heading"></a></h2>
+<p>Para las pruebas, el BNO055 se debe colocar en el <strong>centro del robot</strong>. En protoboard hubo que centrarlo manualmente.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../Introduccion.html" class="btn btn-neutral float-left" title="Área de Electrónica" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Actuadores.html" class="btn btn-neutral float-right" title="Motores y control de motores" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

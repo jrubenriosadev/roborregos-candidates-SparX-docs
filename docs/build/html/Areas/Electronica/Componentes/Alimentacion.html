@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alimentación y filtrado &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Esquemático" href="../Diseno/Esquematico.html" />
+    <link rel="prev" title="Motores y control de motores" href="Actuadores.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Electrónica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#componentes-finales">Componentes finales</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#cronologia">Cronología</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Sensores.html">Sensores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Alimentación y filtrado</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#regulador-de-voltaje-lm2596">Regulador de voltaje (LM2596)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#filtrado-de-ruido">Filtrado de ruido</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conectores">Conectores</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/Esquematico.html">Esquemático</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/PCB.html">PCB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Pruebas/Pruebas.html">Pruebas y problemas encontrados</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Electrónica</a></li>
+      <li class="breadcrumb-item active">Alimentación y filtrado</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Electronica/Componentes/Alimentacion.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="alimentacion-y-filtrado">
+<h1>Alimentación y filtrado<a class="headerlink" href="#alimentacion-y-filtrado" title="Link to this heading"></a></h1>
+<p>El robot se alimenta con <strong>pilas</strong>, y de ahí salen distintos voltajes para la ESP32, la lógica de los módulos y los motores. Esta página explica cómo se regula
+y se filtra el ruido eléctrico.</p>
+<section id="regulador-de-voltaje-lm2596">
+<h2>Regulador de voltaje (LM2596)<a class="headerlink" href="#regulador-de-voltaje-lm2596" title="Link to this heading"></a></h2>
+<p>Como el <strong>TB6612FNG</strong> no puede alimentar a la ESP32 y además necesita <strong>5 V</strong>, se utiliza un regulador <strong>LM2596</strong>:</p>
+<ul class="simple">
+<li><p>Acepta un voltaje de entrada de hasta <strong>40 V</strong>.</p></li>
+<li><p>Su voltaje de salida es <strong>variable</strong>, gracias a un potenciómetro.</p></li>
+<li><p>Soporta hasta <strong>3 A</strong>, que son más que suficientes para alimentar a todos los componentes, como la ESP32.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Como la salida se ajusta con un potenciómetro, <strong>mide la salida con un multímetro antes de conectar</strong> la ESP32 o cualquier sensor.</p>
+</div>
+</section>
+<section id="filtrado-de-ruido">
+<h2>Filtrado de ruido<a class="headerlink" href="#filtrado-de-ruido" title="Link to this heading"></a></h2>
+<p>Los motores y las pilas generan ruido eléctrico que puede afectar a los módulos y las lecturas. Para reducirlo se agregaron:</p>
+<ol class="arabic simple">
+<li><p><strong>Capacitores cerámicos de 100 nF</strong> en las conexiones de cada motor. No tienen polaridad, y reducen el ruido de los motores hacia los módulos TB6612FNG.</p></li>
+<li><p><strong>Un capacitor electrolítico</strong> para bajar el ruido de las pilas, y así reducir al máximo el que puedan dar los componentes que manejan más cambios de voltaje.</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>A diferencia de los cerámicos, los capacitores electrolíticos <strong>sí tienen polaridad</strong>. Si lo conectas al revés se puede dañar.</p>
+</div>
+</section>
+<section id="conectores">
+<h2>Conectores<a class="headerlink" href="#conectores" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>JST-XH</strong> para todos los sensores (ver <a class="reference internal" href="../Diseno/PCB.html"><span class="doc">PCB</span></a>).</p></li>
+<li><p><strong>Borneras</strong> para los motores y las pilas.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="Actuadores.html" class="btn btn-neutral float-left" title="Motores y control de motores" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../Diseno/Esquematico.html" class="btn btn-neutral float-right" title="Esquemático" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

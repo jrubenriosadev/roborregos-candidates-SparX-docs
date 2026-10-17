@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="../../genindex.html" />
     <link rel="search" title="Búsqueda" href="../../search.html" />
-    <link rel="next" title="Reto: Maze" href="../../Retos/Maze/Introduccion.html" />
-    <link rel="prev" title="Área de Mecánica" href="../Mecanica/Introduccion.html" /> 
+    <link rel="next" title="Sensores" href="Componentes/Sensores.html" />
+    <link rel="prev" title="Sistema de orugas (descartado)" href="../Mecanica/Mecanismos/Orugas.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,7 +52,20 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Programacion/Introduccion.html">Programación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Mecanica/Introduccion.html">Mecánica</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Electrónica</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Electrónica</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#componentes-finales">Componentes finales</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cronologia">Cronología</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Componentes/Sensores.html">Sensores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Componentes/Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Componentes/Alimentacion.html">Alimentación y filtrado</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Diseno/Esquematico.html">Esquemático</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Diseno/PCB.html">PCB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Pruebas/Pruebas.html">Pruebas y problemas encontrados</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
 <ul>
@@ -86,14 +99,145 @@
              
   <section id="area-de-electronica">
 <h1>Área de Electrónica<a class="headerlink" href="#area-de-electronica" title="Link to this heading"></a></h1>
+<p>El área de electrónica se encarga de que <strong>RIB-EYE</strong> pueda sentir lo que pasa a su alrededor y moverse: elegir los <strong>sensores y actuadores</strong>, alimentarlos,
+conectarlos con la <strong>ESP32</strong> y diseñar la <strong>PCB</strong> donde todo se integra. Es el punto de unión entre <a class="reference internal" href="../Mecanica/Introduccion.html"><span class="doc">Mecánica</span></a> (donde se monta todo)
+y <a class="reference internal" href="../Programacion/Introduccion.html"><span class="doc">Programación</span></a> (que necesita lecturas confiables para que el algoritmo funcione).</p>
+<p>Esta sección documenta <strong>qué componentes se probaron y cuáles se eligieron (y por qué)</strong>, cómo se alimenta y se conecta todo, y cómo se diseñó la placa.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Casi todas las decisiones de aquí nacen de un <strong>problema encontrado en pruebas</strong> (lecturas con ruido, un sensor que no era el esperado, un cableado mal conectado…).
+Te recomendamos leer también <a class="reference internal" href="Pruebas/Pruebas.html"><span class="doc">Pruebas y problemas encontrados</span></a>: ahí están los errores que nos pasaron para que tú no los repitas.</p>
+</div>
+<section id="herramientas-utilizadas">
+<h2>Herramientas utilizadas<a class="headerlink" href="#herramientas-utilizadas" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>ESP32:</strong> Es el microcontrolador del robot. Al ser una versión de <strong>38 pines</strong> alcanzaron todos los pines para los componentes sin necesidad de usar extensores.</p></li>
+<li><p><strong>EasyEDA:</strong> Es el software con el que se hicieron el esquemático y el diseño de la PCB.</p></li>
+<li><p><strong>Protoboard y módulos de prueba:</strong> Antes de soldar nada, cada componente se probó por separado y luego en conjunto con la ESP32.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>El <strong>BOM (lista de componentes)</strong> del proyecto se encuentra en esta
+<a class="reference external" href="https://docs.google.com/spreadsheets/d/1u5fW0rAIrO9JiF5qdIsv7SzFx1JUm9SMHFaoMUzko4c/edit?gid=0#gid=0">hoja de cálculo</a>.</p>
+</div>
+</section>
+<section id="componentes-finales">
+<h2>Componentes finales<a class="headerlink" href="#componentes-finales" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 26.0%" />
+<col style="width: 24.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Función</p></th>
+<th class="head"><p>Componente</p></th>
+<th class="head"><p>Notas</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Microcontrolador</p></td>
+<td><p>ESP32 (38 pines)</p></td>
+<td><p>Reemplazó a una ESP32-WROOM que se quemó en pruebas.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Orientación (IMU)</p></td>
+<td><p>BNO055</p></td>
+<td><p>Reemplazó al MPU6050, cuyas lecturas no eran precisas.</p></td>
+</tr>
+<tr class="row-even"><td><p>Distancia (frontal)</p></td>
+<td><p>VL53L0X</p></td>
+<td><p>Sensor láser ToF. Se comunica por I2C.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Distancia (laterales)</p></td>
+<td><p>Ultrasónico</p></td>
+<td><p>Mejor rango a corta distancia que el VL53L0X. Su señal ECHO necesita un divisor de voltaje.</p></td>
+</tr>
+<tr class="row-even"><td><p>Color</p></td>
+<td><p>TCS34725</p></td>
+<td><p>Se comunica por I2C.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Motores</p></td>
+<td><p>JGA25-370 con encoder</p></td>
+<td><p>Buen torque. Ver <a class="reference internal" href="Componentes/Actuadores.html"><span class="doc">Motores y control de motores</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Control de motores</p></td>
+<td><p>TB6612FNG</p></td>
+<td><p>Un módulo por cada dos motores.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Regulación de voltaje</p></td>
+<td><p>LM2596</p></td>
+<td><p>Alimenta la ESP32 y la lógica desde las pilas.</p></td>
+</tr>
+<tr class="row-even"><td><p>Visión</p></td>
+<td><p>Cámara con conexión CSI (Raspberry Pi)</p></td>
+<td><p>Reemplazó a la idea de usar una cámara VGA OV7670.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="cronologia">
+<h2>Cronología<a class="headerlink" href="#cronologia" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14.0%" />
+<col style="width: 86.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Semana</p></th>
+<th class="head"><p>Qué pasó</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Primeras pruebas con ultrasónico, TCS34725 y MPU. Las lecturas del ultrasónico tienen mucho ruido, así que se buscan medidores láser. La cámara OV7670 se cambia por una CSI.</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>Llegan los motores JGA25-370, se elige el TB6612FNG y el LM2596. Primer esquemático.</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>Se prueban encoders, VL53L0X y TB6612FNG. Se cambia el MPU6050 por el BNO055. Se quema una ESP32 por cablear mal los encoders.</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Primeras lecturas buenas con el BNO055 y pruebas del TCS34725. Esquemático final con JST-XH.</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Todo el conjunto funcionando juntos y primeras pruebas del PID en una cancha de cartón. Se termina el diseño de la PCB.</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>Se pasa a cuatro motores. Se suelda la placa.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Componentes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Componentes/Sensores.html">Sensores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Componentes/Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Componentes/Alimentacion.html">Alimentación y filtrado</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Diseño de la placa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Diseno/Esquematico.html">Esquemático</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Diseno/PCB.html">PCB</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Pruebas</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Pruebas/Pruebas.html">Pruebas y problemas encontrados</a></li>
+</ul>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="../Mecanica/Introduccion.html" class="btn btn-neutral float-left" title="Área de Mecánica" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="../../Retos/Maze/Introduccion.html" class="btn btn-neutral float-right" title="Reto: Maze" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../Mecanica/Mecanismos/Orugas.html" class="btn btn-neutral float-left" title="Sistema de orugas (descartado)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Componentes/Sensores.html" class="btn btn-neutral float-right" title="Sensores" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

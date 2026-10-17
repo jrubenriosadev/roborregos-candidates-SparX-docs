@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pruebas y problemas encontrados &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Reto: Maze" href="../../../Retos/Maze/Introduccion.html" />
+    <link rel="prev" title="PCB" href="../Diseno/PCB.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Electrónica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#componentes-finales">Componentes finales</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#cronologia">Cronología</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Sensores.html">Sensores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Alimentacion.html">Alimentación y filtrado</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/Esquematico.html">Esquemático</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Diseno/PCB.html">PCB</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Pruebas y problemas encontrados</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cancha-de-pruebas">Cancha de pruebas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#problemas-y-soluciones">Problemas y soluciones</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lecciones-aprendidas">Lecciones aprendidas</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Electrónica</a></li>
+      <li class="breadcrumb-item active">Pruebas y problemas encontrados</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Electronica/Pruebas/Pruebas.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pruebas-y-problemas-encontrados">
+<h1>Pruebas y problemas encontrados<a class="headerlink" href="#pruebas-y-problemas-encontrados" title="Link to this heading"></a></h1>
+<p>Esta página recopila cómo se fue probando todo el sistema y los errores que nos pasaron. Esperamos que te sirva para evitarlos.</p>
+<section id="cancha-de-pruebas">
+<h2>Cancha de pruebas<a class="headerlink" href="#cancha-de-pruebas" title="Link to this heading"></a></h2>
+<p>Para probar correctamente los <strong>ultrasónicos</strong> y los <strong>VL53L0X</strong> se necesitaba una cancha. El compañero de programación compró un <strong>cartón</strong> y se dividió en <strong>cuadrantes de 30x15</strong>,
+con lo que se hizo una tira para probar las <strong>paredes</strong> y los <strong>colores</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Se probaron primero los encoders junto con el BNO055. En esta etapa se siguió usando el módulo <strong>L298N</strong> mientras se hacían las primeras pruebas del <strong>PID</strong> (ver <a class="reference internal" href="../../Programacion/PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p>
+</div>
+</section>
+<section id="problemas-y-soluciones">
+<h2>Problemas y soluciones<a class="headerlink" href="#problemas-y-soluciones" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12.0%" />
+<col style="width: 38.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Semana</p></th>
+<th class="head"><p>Problema</p></th>
+<th class="head"><p>Solución</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Ultrasónicos con mucho ruido en sus mediciones.</p></td>
+<td><p>Se buscaron alternativas láser (VL53L0X).</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>MPU no era un 6050 típico, incompatible con las librerías.</p></td>
+<td><p>Se buscó uno compatible y finalmente se cambió por el BNO055 (semana 4).</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>Encoders mal conectados (positivo y negativo confundidos) <strong>quemaron la ESP32-WROOM</strong>.</p></td>
+<td><p>Se cambió a una ESP32 de 38 pines. Resultó beneficioso: no hizo falta usar ningún extensor de pines y se simplificó la placa.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>MPU6050 con lecturas imprecisas para conocer la posición del robot.</p></td>
+<td><p>Se cambió por el BNO055.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>El BNO055 dejó de dar lecturas.</p></td>
+<td><p>Se consiguió otro y no hubo más problemas.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Los encoders fallaban y necesitaban extensiones.</p></td>
+<td><p>El problema era la <strong>distribución de pines</strong> que se usaba. Al cambiarla todo funcionó.</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Problemas al conectar los VL53L0X al bus I2C.</p></td>
+<td><p>Se creó un segundo canal I2C con otros dos pines (sugerencia del compañero de programación).</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Ruido de los motores y de las pilas.</p></td>
+<td><p>Capacitores cerámicos de 100 nF en los motores y un electrolítico para las pilas.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>El diseño anterior no funcionaba para los obstáculos.</p></td>
+<td><p>Se pasó a cuatro motores con un segundo TB6612FNG (mismos pines).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="lecciones-aprendidas">
+<h2>Lecciones aprendidas<a class="headerlink" href="#lecciones-aprendidas" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Revisa la polaridad</strong> de todo antes de energizar. Un cable invertido en un encoder dañó una ESP32.</p></li>
+<li><p><strong>Prueba cada componente por separado</strong> antes de juntarlos. Así se detectó rápido cuáles fallaban.</p></li>
+<li><p><strong>Si un pin falla, revisa también la distribución de pines</strong>: no siempre es el componente.</p></li>
+<li><p>Un sensor puede dañarse: <strong>ten una unidad de repuesto</strong> de los componentes críticos (por ejemplo, el BNO055).</p></li>
+<li><p>Considera que el <strong>BNO055 debe estar centrado</strong> en el robot para que sus lecturas sirvan para el control del giro.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>En la semana 5, con las primeras lecturas del BNO055, se vio que el diseño con <strong>tracción trasera</strong> no permitiría que el robot <strong>girara sobre su propio eje</strong>. Esto fue lo que
+llevó al rediseño mecánico descrito en <a class="reference internal" href="../../Mecanica/Evolucion/Version3.html"><span class="doc">Versión 3</span></a>.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../Diseno/PCB.html" class="btn btn-neutral float-left" title="PCB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../../../Retos/Maze/Introduccion.html" class="btn btn-neutral float-right" title="Reto: Maze" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

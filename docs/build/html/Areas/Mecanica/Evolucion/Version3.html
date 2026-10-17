@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Versión 3 &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Mecanismo para recoger la pelota" href="../Mecanismos/Pelota.html" />
+    <link rel="prev" title="Versión 2" href="Version2.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Mecánica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#flujo-de-trabajo">Flujo de trabajo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#resumen-de-versiones">Resumen de versiones</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#evolucion-del-diseno">Evolución del diseño</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Prototipo.html">Prototipo inicial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Version1.html">Versión 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Version2.html">Versión 2</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Versión 3</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#decision-de-diseno">Decisión de diseño</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#primer-diseno">Primer diseño</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nuevo-espacio-para-la-pelota">Nuevo espacio para la pelota</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#diseno-actual">Diseño actual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pendientes">Pendientes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Pelota.html">Mecanismo para recoger la pelota</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Orugas.html">Sistema de orugas (descartado)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Mecánica</a></li>
+      <li class="breadcrumb-item active">Versión 3</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Mecanica/Evolucion/Version3.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="version-3">
+<h1>Versión 3<a class="headerlink" href="#version-3" title="Link to this heading"></a></h1>
+<p><em>Semana 5 (29/9/26 - 1/10/26)</em></p>
+<p>La versión 3 nace de una necesidad concreta de programación: el robot debe poder <strong>girar exactamente sobre su propio eje</strong>.</p>
+<section id="decision-de-diseno">
+<h2>Decisión de diseño<a class="headerlink" href="#decision-de-diseno" title="Link to this heading"></a></h2>
+<p>Para lograrlo, se decidió usar una configuración <strong>tipo tanque sin transferencia de torque a las ruedas externas</strong>. Es decir, solo las ruedas con motor
+transmiten movimiento, y las ruedas externas giran libremente, acompañando el movimiento.</p>
+<p>Se descartó un mecanismo que transfiriera el torque a todas las ruedas porque habría sido <strong>demasiado complicado para las ventajas que potencialmente podría ofrecer</strong>.</p>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Con esta configuración, al girar los motores en direcciones opuestas el robot rota sobre su propio centro, que es lo que necesita el algoritmo de resolución del maze.</p>
+</div>
+</section>
+<section id="primer-diseno">
+<h2>Primer diseño<a class="headerlink" href="#primer-diseno" title="Link to this heading"></a></h2>
+<p>Para esta versión se cambió <strong>completamente la disposición de las llantas</strong> para lograr un <strong>movimiento simétrico</strong>.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/v3_primer_diseno_29-9.png"><img alt="../../../_images/v3_primer_diseno_29-9.png" src="../../../_images/v3_primer_diseno_29-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer diseño de la versión 3 - 29/9/26</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="nuevo-espacio-para-la-pelota">
+<h2>Nuevo espacio para la pelota<a class="headerlink" href="#nuevo-espacio-para-la-pelota" title="Link to this heading"></a></h2>
+<p>Al <strong>desplazar los motores hacia el centro de la placa base</strong>, quedó disponible un espacio para un <strong>mecanismo pasivo y simple para recoger la pelota</strong>,
+que se incluyó en el diseño. Más detalles en <a class="reference internal" href="../Mecanismos/Pelota.html"><span class="doc">Mecanismo para recoger la pelota</span></a>.</p>
+</section>
+<section id="diseno-actual">
+<h2>Diseño actual<a class="headerlink" href="#diseno-actual" title="Link to this heading"></a></h2>
+<p>Se agregó el espacio para almacenar la pelota dentro del robot (con ligas como mecanismo pasivo) y se ajustaron todas las medidas faltantes para que funcione correctamente.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../../_images/v3_actual_1-10.png"><img alt="../../../_images/v3_actual_1-10.png" src="../../../_images/v3_actual_1-10.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Diseño actual de la versión 3 - 1/10/26</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="pendientes">
+<h2>Pendientes<a class="headerlink" href="#pendientes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Agregar al CAD los últimos componentes electrónicos.</p></li>
+<li><p>Probar que todo funcione correctamente una vez cortado y ensamblado.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="Version2.html" class="btn btn-neutral float-left" title="Versión 2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../Mecanismos/Pelota.html" class="btn btn-neutral float-right" title="Mecanismo para recoger la pelota" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

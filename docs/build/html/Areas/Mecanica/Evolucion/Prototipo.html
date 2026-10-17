@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prototipo inicial &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Versión 1" href="Version1.html" />
+    <link rel="prev" title="Área de Mecánica" href="../Introduccion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Mecánica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#flujo-de-trabajo">Flujo de trabajo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#resumen-de-versiones">Resumen de versiones</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#evolucion-del-diseno">Evolución del diseño</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Prototipo inicial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#objetivo">Objetivo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#base-del-robot">Base del robot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ensamble-en-cad">Ensamble en CAD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#primeros-prototipos-de-orugas">Primeros prototipos de orugas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#siguiente-paso">Siguiente paso</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Version1.html">Versión 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Version2.html">Versión 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Version3.html">Versión 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Pelota.html">Mecanismo para recoger la pelota</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Orugas.html">Sistema de orugas (descartado)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Mecánica</a></li>
+      <li class="breadcrumb-item active">Prototipo inicial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Mecanica/Evolucion/Prototipo.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="prototipo-inicial">
+<h1>Prototipo inicial<a class="headerlink" href="#prototipo-inicial" title="Link to this heading"></a></h1>
+<p><em>Semana 2 (3/9/26 - 9/9/26)</em></p>
+<p>La primera meta del área de mecánica fue tener cuanto antes <strong>un diseño básico del robot</strong> sobre el cual los compañeros de programación y electrónica pudieran
+empezar a hacer sus pruebas, y que además sirviera de base para ir mejorándolo.</p>
+<section id="objetivo">
+<h2>Objetivo<a class="headerlink" href="#objetivo" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Contar con una base física donde montar motores, controlador y sensores para empezar pruebas.</p></li>
+<li><p>Tener un diseño en CAD sobre el cual iterar.</p></li>
+<li><p>Explorar un sistema de movimiento con orugas (ver <a class="reference internal" href="../Mecanismos/Orugas.html"><span class="doc">Sistema de orugas (descartado)</span></a>).</p></li>
+</ul>
+</section>
+<section id="base-del-robot">
+<h2>Base del robot<a class="headerlink" href="#base-del-robot" title="Link to this heading"></a></h2>
+<p>Se diseñó en <strong>OnShape</strong> una primera base, se cortó en <strong>MDF</strong> con <strong>RDWorks</strong> y se ensambló junto con el compañero de electrónica.
+Este prototipo fue el que se utilizó durante las primeras pruebas de programación y electrónica.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/prototipo_base_3-9.png"><img alt="../../../_images/prototipo_base_3-9.png" src="../../../_images/prototipo_base_3-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer prototipo de base para el robot - 3/9/26</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../../_images/prototipo_primer_ensamble_4-9.png"><img alt="../../../_images/prototipo_primer_ensamble_4-9.png" src="../../../_images/prototipo_primer_ensamble_4-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer ensamble del prototipo para pruebas - 4/9/26</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../../_images/prototipo_fisico_8-9.png"><img alt="../../../_images/prototipo_fisico_8-9.png" src="../../../_images/prototipo_fisico_8-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Prototipo físico actual - 8/9/26</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Este prototipo sirvió para las pruebas de las áreas de programación y electrónica en ese momento. No es el diseño final.</p>
+</div>
+</section>
+<section id="ensamble-en-cad">
+<h2>Ensamble en CAD<a class="headerlink" href="#ensamble-en-cad" title="Link to this heading"></a></h2>
+<p>Paralelamente se fue armando el ensamble completo en el CAD.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../../_images/prototipo_ensamble_cad_9-9.png"><img alt="../../../_images/prototipo_ensamble_cad_9-9.png" src="../../../_images/prototipo_ensamble_cad_9-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ensamble actual del robot - 9/9/26</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Faltaba agregar al CAD los componentes y sensores que se iban a utilizar. Se estaba esperando a que el equipo definiera cuáles
+componentes usar para agregarlos al ensamble.</p>
+</div>
+</section>
+<section id="primeros-prototipos-de-orugas">
+<h2>Primeros prototipos de orugas<a class="headerlink" href="#primeros-prototipos-de-orugas" title="Link to this heading"></a></h2>
+<p>En esta etapa también se diseñaron los primeros <strong>eslabones de cadena</strong> y un primer <strong>sprocket</strong> para un mecanismo de movimiento con orugas.</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../../../_images/oruga_eslabones_9-9.png"><img alt="../../../_images/oruga_eslabones_9-9.png" src="../../../_images/oruga_eslabones_9-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer prototipo de eslabones de cadena - 9/9/26</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../../_images/oruga_sprocket_9-9.png"><img alt="../../../_images/oruga_sprocket_9-9.png" src="../../../_images/oruga_sprocket_9-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer prototipo de sprocket - 9/9/26</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition warning">
+<p class="admonition-title">Advertencia</p>
+<p>La funcionalidad de este diseño de sprocket <strong>no se llegó a probar</strong> físicamente. Solo existía en diseño.</p>
+</div>
+</section>
+<section id="siguiente-paso">
+<h2>Siguiente paso<a class="headerlink" href="#siguiente-paso" title="Link to this heading"></a></h2>
+<p>Con la base lista para pruebas, la siguiente semana se desarrolló una versión con más detalle: <a class="reference internal" href="Version1.html"><span class="doc">Versión 1</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../Introduccion.html" class="btn btn-neutral float-left" title="Área de Mecánica" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Version1.html" class="btn btn-neutral float-right" title="Versión 1" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

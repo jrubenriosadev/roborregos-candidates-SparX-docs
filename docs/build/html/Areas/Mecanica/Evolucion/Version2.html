@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Versión 2 &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Versión 3" href="Version3.html" />
+    <link rel="prev" title="Versión 1" href="Version1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Mecánica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#flujo-de-trabajo">Flujo de trabajo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#resumen-de-versiones">Resumen de versiones</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#evolucion-del-diseno">Evolución del diseño</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Prototipo.html">Prototipo inicial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Version1.html">Versión 1</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Versión 2</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cambios-principales">Cambios principales</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cambio-de-rueda-loca-a-4-ruedas">Cambio de rueda loca a 4 ruedas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rediseno">Rediseño</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sketch-lateral">Sketch lateral</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#diseno-integral-de-mecanismos">Diseño integral de mecanismos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-2-terminada">Versión 2 terminada</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#problema-encontrado">Problema encontrado</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Version3.html">Versión 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Pelota.html">Mecanismo para recoger la pelota</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mecanismos/Orugas.html">Sistema de orugas (descartado)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Mecánica</a></li>
+      <li class="breadcrumb-item active">Versión 2</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Mecanica/Evolucion/Version2.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="version-2">
+<h1>Versión 2<a class="headerlink" href="#version-2" title="Link to this heading"></a></h1>
+<p><em>Semana 4 y 5 (18/9/26 - 27/9/26)</em></p>
+<p>La versión 2 fue un <strong>rediseño importante</strong> del robot. Aquí se cambió la forma de moverse, se definieron los motores finales y se diseñaron la mayoría de los mecanismos.</p>
+<section id="cambios-principales">
+<h2>Cambios principales<a class="headerlink" href="#cambios-principales" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Se cambiaron los motores por los que se decidió usar para el diseño final (ver <a class="reference internal" href="../../Programacion/Componentes/JGA-125371.html"><span class="doc">Configuración para motor</span></a>).</p></li>
+<li><p>Se agregó una <strong>placa superior</strong> para fijar componentes según los requerimientos del equipo.</p></li>
+<li><p>Se cambió el <strong>soporte de los motores</strong> por uno que se ajusta más fácilmente a las necesidades de diseño.</p></li>
+<li><p>Se quitaron piezas que no eran estrictamente necesarias.</p></li>
+<li><p>Se <strong>reemplazó la rueda loca</strong> por ruedas normales no energizadas.</p></li>
+</ul>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/v2_primer_diseno_18-9.png"><img alt="../../../_images/v2_primer_diseno_18-9.png" src="../../../_images/v2_primer_diseno_18-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primer diseño de la versión 2 - 18/9/26</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="cambio-de-rueda-loca-a-4-ruedas">
+<h2>Cambio de rueda loca a 4 ruedas<a class="headerlink" href="#cambio-de-rueda-loca-a-4-ruedas" title="Link to this heading"></a></h2>
+<p>El cambio más importante fue <strong>sustituir la rueda loca por ruedas normales sin motor</strong>, como en los autos comunes.</p>
+<p>La idea surgió al <strong>desmontar un motorreductor recto</strong>: se dieron cuenta de que se podía quitar el motor y los engranajes que no estaban conectados al eje de la rueda,
+de forma que el conjunto quedara como una especie de <strong>balero</strong>. Así se pueden usar <strong>4 ruedas con solo 2 motores</strong>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 37.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Rueda loca</p></th>
+<th class="head"><p>4 ruedas (2 con motor, 2 sin motor)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Estabilidad</p></td>
+<td><p>Menor</p></td>
+<td><p>Mejor</p></td>
+</tr>
+<tr class="row-odd"><td><p>Agarre</p></td>
+<td><p>Menor</p></td>
+<td><p>Mayor</p></td>
+</tr>
+<tr class="row-even"><td><p>Obstáculos</p></td>
+<td><p>Puede tener problemas por la posición de la rueda</p></td>
+<td><p>Mejor capacidad para superarlos</p></td>
+</tr>
+<tr class="row-odd"><td><p>Motores necesarios</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Esta solución no agrega motores, ni controladores, ni carga de programación: <strong>cuatro ruedas, pero los mismos dos motores</strong>.</p>
+</div>
+</section>
+<section id="rediseno">
+<h2>Rediseño<a class="headerlink" href="#rediseno" title="Link to this heading"></a></h2>
+<p>Durante el 21/9/26 se amplió el tamaño de la placa superior por petición del equipo, se cambiaron algunas medidas del tamaño y forma del chasis y se dio
+mayor detalle a las llantas por fines estéticos.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../../_images/v2_rediseno_21-9.png"><img alt="../../../_images/v2_rediseno_21-9.png" src="../../../_images/v2_rediseno_21-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Rediseño de la versión 2 - 21/9/26</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="sketch-lateral">
+<h2>Sketch lateral<a class="headerlink" href="#sketch-lateral" title="Link to this heading"></a></h2>
+<p>Con base en las medidas del chasis y los soportes de los motores se hizo un <strong>sketch lateral</strong> para calcular las distancias entre las piezas, de forma que
+<strong>todos los mecanismos puedan funcionar al mismo tiempo</strong>. Se priorizó que <strong>la base del robot quede paralela al piso</strong>, para no generar problemas en la programación.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../../_images/v2_sketch_lateral_23-9.png"><img alt="../../../_images/v2_sketch_lateral_23-9.png" src="../../../_images/v2_sketch_lateral_23-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Sketch lateral - 23/9/26</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../../_images/v2_rediseno_24-9.png"><img alt="../../../_images/v2_rediseno_24-9.png" src="../../../_images/v2_rediseno_24-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Rediseño de la versión 2 - 24/9/26</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>El 24/9/26 se hicieron cambios en la geometría del robot, principalmente para <strong>ajustar todas las medidas con el cambio en las ruedas</strong>.</p>
+</section>
+<section id="diseno-integral-de-mecanismos">
+<h2>Diseño integral de mecanismos<a class="headerlink" href="#diseno-integral-de-mecanismos" title="Link to this heading"></a></h2>
+<p>Para el 25/9/26 se había diseñado la mayoría de los componentes mecánicos del robot, incluyendo el primer mecanismo para recoger la pelota
+(ver <a class="reference internal" href="../Mecanismos/Pelota.html"><span class="doc">Mecanismo para recoger la pelota</span></a>).</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../../../_images/v2_diseno_integral_25-9.png"><img alt="../../../_images/v2_diseno_integral_25-9.png" src="../../../_images/v2_diseno_integral_25-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Diseño integral de mecanismos - 25/9/26</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Algunos componentes todavía no estaban en su posición final dentro del diseño, y faltaba recibir la <strong>cámara</strong> para diseñar su soporte con base en sus medidas.</p>
+</div>
+<p>Se agregaron movimientos muy básicos al ensamble para <strong>verificar que no hubiera interferencia entre mecanismos</strong>, se corrigieron algunos errores de diseño y se agregaron detalles estéticos.</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../../_images/v2_actual_25-9.png"><img alt="../../../_images/v2_actual_25-9.png" src="../../../_images/v2_actual_25-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Diseño actual de la versión 2 - 25/9/26</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="version-2-terminada">
+<h2>Versión 2 terminada<a class="headerlink" href="#version-2-terminada" title="Link to this heading"></a></h2>
+<p>Se terminó el diseño de la segunda versión, que se <strong>cortó y se probó</strong>.</p>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../../../_images/v2_final_27-9.png"><img alt="../../../_images/v2_final_27-9.png" src="../../../_images/v2_final_27-9.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Diseño final de la versión 2 - 27/9/26</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="problema-encontrado">
+<h2>Problema encontrado<a class="headerlink" href="#problema-encontrado" title="Link to this heading"></a></h2>
+<p>Al probar esta versión, programación pidió una nueva con la capacidad de <strong>girar exactamente sobre su propio eje</strong>, ya que es <strong>necesario para que funcione el algoritmo</strong> que se está
+desarrollando (ver <a class="reference internal" href="../../Programacion/Algoritmo/Planteamiento.html"><span class="doc">Introducción a la resolución de maze</span></a>). Esto dio origen a la <a class="reference internal" href="Version3.html"><span class="doc">Versión 3</span></a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Un robot que no puede girar sobre su propio eje no es capaz de hacer giros de 90° precisos dentro de un laberinto de casillas.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="Version1.html" class="btn btn-neutral float-left" title="Versión 1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Version3.html" class="btn btn-neutral float-right" title="Versión 3" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

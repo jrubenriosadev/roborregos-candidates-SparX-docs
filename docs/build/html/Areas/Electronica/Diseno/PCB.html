@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PCB &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Pruebas y problemas encontrados" href="../Pruebas/Pruebas.html" />
+    <link rel="prev" title="Esquemático" href="Esquematico.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Programacion/Introduccion.html">Programación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Electrónica</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#componentes-finales">Componentes finales</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#cronologia">Cronología</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Sensores.html">Sensores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Actuadores.html">Motores y control de motores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Componentes/Alimentacion.html">Alimentación y filtrado</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Esquematico.html">Esquemático</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PCB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pistas">Pistas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plano-de-tierra-y-vias">Plano de tierra y vías</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conectores">Conectores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#contorno-de-la-placa">Contorno de la placa</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detalles">Detalles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soldadura-y-ensamble">Soldadura y ensamble</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../Pruebas/Pruebas.html">Pruebas y problemas encontrados</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Electrónica</a></li>
+      <li class="breadcrumb-item active">PCB</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Electronica/Diseno/PCB.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pcb">
+<h1>PCB<a class="headerlink" href="#pcb" title="Link to this heading"></a></h1>
+<p><em>Semana 6 y 7</em></p>
+<p>Con el esquemático final se diseñó la PCB que integra la ESP32, los conectores de los sensores y los módulos de control de motores.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../../_images/pcb_top.png"><img alt="../../../_images/pcb_top.png" src="../../../_images/pcb_top.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">PCB, capa superior (<em>Top layer</em>)</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../../_images/pcb_bottom.png"><img alt="../../../_images/pcb_bottom.png" src="../../../_images/pcb_bottom.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">PCB, capa inferior (<em>Bottom layer</em>)</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="pistas">
+<h2>Pistas<a class="headerlink" href="#pistas" title="Link to this heading"></a></h2>
+<p>Para definir el ancho de las pistas se investigó en foros cuáles eran las más usadas, y se implementó cada una según el <strong>voltaje</strong> que necesita.
+Además, los mentores mencionaron las <strong>reglas</strong> que se usan para calcular el ancho exacto de las pistas dependiendo del voltaje y, sobre todo, de la <strong>corriente</strong> que pasa por ellas.</p>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Una pista muy delgada para la corriente que pasa por ella se puede calentar y dañar. Las pistas de potencia (motores y pilas) deben ser más anchas que las de señal.</p>
+</div>
+</section>
+<section id="plano-de-tierra-y-vias">
+<h2>Plano de tierra y vías<a class="headerlink" href="#plano-de-tierra-y-vias" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Se usó una capa de cobre como <strong>GND común</strong>, lo que facilitó las conexiones.</p></li>
+<li><p>Se usaron bastantes <strong>puentes (vías)</strong> entre la capa superior (<em>Top layer</em>) y la inferior (<em>Bottom layer</em>).</p></li>
+</ul>
+</section>
+<section id="conectores">
+<h2>Conectores<a class="headerlink" href="#conectores" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>JST-XH</strong> para todos los sensores.</p></li>
+<li><p><strong>Borneras</strong> para los motores y las pilas.</p></li>
+<li><p><strong>Dupont</strong> para los módulos puente H y la ESP32.</p></li>
+</ul>
+</section>
+<section id="contorno-de-la-placa">
+<h2>Contorno de la placa<a class="headerlink" href="#contorno-de-la-placa" title="Link to this heading"></a></h2>
+<p>El contorno (<em>outline</em>) de la placa se hizo dentro del propio programa, porque en ese momento se desconocía la opción de importar un archivo <strong>DXF</strong>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Si ya tienes el contorno de la placa diseñado en CAD (por ejemplo con el área de <a class="reference internal" href="../../Mecanica/Introduccion.html"><span class="doc">Mecánica</span></a>), puedes importarlo como DXF para que los orificios coincidan con el chasis.</p>
+</div>
+</section>
+<section id="detalles">
+<h2>Detalles<a class="headerlink" href="#detalles" title="Link to this heading"></a></h2>
+<p>En la placa se pusieron imágenes que hacen referencia a cada miembro del equipo y a nuestra querida <strong>Pachuca</strong>.</p>
+</section>
+<section id="soldadura-y-ensamble">
+<h2>Soldadura y ensamble<a class="headerlink" href="#soldadura-y-ensamble" title="Link to this heading"></a></h2>
+<p>La placa se pidió desde la semana 6 y se <strong>soldó en la semana 7</strong>. Se tuvieron que <strong>crimpar cables</strong> a las conexiones JST-XH, y se usaron dupont para los puentes H y la ESP32.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="Esquematico.html" class="btn btn-neutral float-left" title="Esquemático" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../Pruebas/Pruebas.html" class="btn btn-neutral float-right" title="Pruebas y problemas encontrados" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
