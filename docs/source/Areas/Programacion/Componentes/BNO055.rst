@@ -1,3 +1,125 @@
 ###########################################
 Unidad de Medicion Inercial (IMU) (BNO055)
 ###########################################
+
+El BNO055 es lo que le dice al robot **hacia dónde está mirando**. Sin esto, ir recto o girar exactamente 90° sería imposible, porque las ruedas por sí solas patinan y no son
+idénticas. Todo el movimiento del robot (ver :doc:`../PID/IntroduccionPID`) depende de una sola lectura de este sensor: el **yaw** (el ángulo de giro sobre el eje vertical).
+
+Por qué un BNO055 y no un MPU6050
+**********************************
+
+El MPU6050 solo entrega datos crudos (aceleración y velocidad angular). Para sacar un ángulo hay que **fusionarlos** a mano (en ``mpuConstants.h`` todavía quedaron las constantes de un filtro
+complementario, 0.98 para el giroscopio y 0.02 para el acelerómetro) y aun así las lecturas no eran precisas para saber la posición del robot (ver :doc:`../../Electronica/Componentes/Sensores`).
+
+El BNO055 **ya hace esa fusión dentro del chip** y entrega directamente los ángulos de Euler. Es decir, nos ahorramos el filtro y su ajuste.
+
+Construyendo la clase
+**********************
+
+1. Iniciarlo
+=============
+
+.. code-block:: cpp
+    :caption: Iniciar el sensor (Bno.cpp)
+
+    if (_bno.begin(OPERATION_MODE_IMUPLUS)) {
+        delay(100);
+        _bno.setExtCrystalUse(true);
+        _isInit = true;
+        return true;
+    }
+
+Dos decisiones importantes:
+
+- **OPERATION_MODE_IMUPLUS:** el sensor puede fusionar también un magnetómetro (brújula), pero este modo usa **solo acelerómetro y giroscopio**. El rumbo que entrega no es el norte real,
+  sino uno **relativo a cómo estaba el robot al encender**, y eso es justo lo que necesitamos (en el maze no existe un "norte" que nos importe). Además, no depende de campos magnéticos
+  que puedan generar los motores.
+- **init() regresa bool:** si el sensor no responde (cable flojo, dirección equivocada) la clase **no se rompe**: ``_isInit`` queda en ``false`` y ``update()`` simplemente no hace nada.
+
+.. tip::
+    La dirección I2C por defecto es ``0x28``, que es la que se obtiene conectando el pin **ADD** del BNO055 a GND (ver :doc:`../../Electronica/Componentes/Sensores`).
+
+2. Leerlo sin bloquear
+=======================
+
+.. code-block:: cpp
+    :caption: Lectura periódica (Bno.cpp)
+
+    void Bno::update() {
+        if(!_isInit) return;
+        if(millis() - _lrt >= _interval_ms) {
+            _lrt = millis();
+            eData = _bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+            // ...
+
+La idea es que ``update()`` se llame **en cada vuelta del ciclo**, pero solo hable con el sensor cada ``interval_ms`` (20 ms por defecto, el mismo periodo del ciclo de control, ver :doc:`../Main/CicloPrincipal`).
+Cada lectura por I2C cuesta tiempo, así que no tiene sentido hacerlas más rápido de lo que el controlador las puede usar.
+
+El cuaternión y la aceleración lineal **solo se leen si se pide** con ``enableExtras(true)``. Como el robot solo usa el ángulo, no se gasta tiempo de I2C en lo demás.
+
+3. Un cero que podamos mover
+=============================
+
+.. code-block:: cpp
+    :caption: Rumbo relativo (Bno.cpp)
+
+    void Bno::resetHeading() {
+        if(!_isInit) return;
+        eData = _bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+        _lrt = millis();
+        _headingOffset = getEuler().x();
+    }
+
+    float Bno::getRelativeYaw() const {
+        float currentYaw = getEuler().x();
+        float relativeYaw = currentYaw - _headingOffset;
+
+        while (relativeYaw > 180.0f)  relativeYaw -= 360.0f;
+        while (relativeYaw < -180.0f) relativeYaw += 360.0f;
+
+        return relativeYaw;
+    }
+
+Esta es la parte más importante de la clase. El BNO055 entrega el ángulo entre 0° y 360°, pero al robot le conviene pensar así: **"0° es hacia donde estaba mirando cuando lo prendí (o cuando yo lo decidí)"**.
+
+- ``resetHeading()`` guarda el ángulo actual como el nuevo cero (``_headingOffset``).
+- ``getRelativeYaw()`` le resta ese cero y deja el resultado **entre -180° y 180°**.
+
+Es normal preguntarse por qué entre -180° y 180° y no entre 0° y 360°. Porque así el error de giro siempre es **el camino corto**: si el robot está a 350° y quiere ir a 10°, la resta da -340°,
+que en realidad son solo 20° hacia el otro lado. Esa normalización se repite también en el PID (ver :doc:`../PID/IntroduccionPID`).
+
+.. important::
+    Un yaw **positivo es un giro a la derecha** (sentido de las manecillas del reloj). Toda la lógica de giros del robot (``+90`` es derecha) asume esto.
+
+Calibración
+************
+
+.. code-block:: cpp
+    :caption: ¿Está calibrado? (Bno.cpp)
+
+    bool Bno::isCalibrated() {
+        if(!_isInit) return false;
+        uint8_t sys, gyro, accel, mag;
+        _bno.getCalibration(&sys, &gyro, &accel, &mag);
+        return gyro == 3;
+    }
+
+El BNO055 se calibra solo y reporta qué tan calibrado está cada sensor de 0 a 3. Aquí solo revisamos el **giroscopio** (``gyro == 3``) porque es el único que usa nuestro modo.
+
+Para calibrarlo basta con dejarlo **quieto unos segundos** después de prender el robot.
+
+Errores comunes
+****************
+
+.. list-table::
+    :header-rows: 1
+    :widths: 35 65
+
+    * - Síntoma
+      - Qué revisar
+    * - ``isUp()`` siempre ``false``
+      - Cableado I2C y dirección (``0x28``). Prueba un escáner I2C (ver :doc:`../Main/CicloPrincipal`).
+    * - El yaw "se va" lentamente con el robot quieto
+      - Es la deriva normal del giroscopio. Deja el robot quieto al prender y usa ``resetHeading()`` justo antes de empezar.
+    * - Las lecturas se congelan o desaparecen
+      - Cable flojo o un sensor dañado. A nosotros nos pasó (ver :doc:`../../Electronica/Pruebas/Pruebas`).

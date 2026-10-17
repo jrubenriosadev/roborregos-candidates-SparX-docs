@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Máquina de Estados (StateMachine) &mdash; documentación de SparX Docs - 0.1.0</title>
+  <title>Máquina de estados (StateMachine) &mdash; documentación de SparX Docs - 0.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -52,11 +52,19 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción a la máquina de estados (StateMachine)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#que-es-una-maquina-de-estados">Qué es una máquina de estados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#que-hace-nuestra-maquina-de-estados">Qué hace nuestra máquina de estados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cuando-el-reto-se-vuelve-mas-grande-el-maze">Cuando el reto se vuelve más grande: el maze</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
 </ul>
@@ -87,7 +95,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Programación</a></li>
-      <li class="breadcrumb-item active">Máquina de Estados (StateMachine)</li>
+      <li class="breadcrumb-item active">Máquina de estados (StateMachine)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/Areas/Programacion/MaquinaEstados/Introduccion.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -98,7 +106,264 @@
            <div itemprop="articleBody">
              
   <section id="maquina-de-estados-statemachine">
-<h1>Máquina de Estados (StateMachine)<a class="headerlink" href="#maquina-de-estados-statemachine" title="Link to this heading"></a></h1>
+<h1>Máquina de estados (StateMachine)<a class="headerlink" href="#maquina-de-estados-statemachine" title="Link to this heading"></a></h1>
+<p>Un robot tiene que hacer cosas <strong>en orden</strong>: avanzar una casilla, esperar a estabilizarse, mirar si hay pared, decidir, girar, volver a avanzar. La forma más natural de escribir eso es una lista de instrucciones:</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Cómo NO se hace (pseudocódigo)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>avanzar(30 cm);
+delay(800);
+si hay pared al frente: girar(90);
+avanzar(30 cm);
+</pre></div>
+</div>
+</div>
+<p>Esto <strong>no funciona en un robot</strong>. Mientras el robot «avanza 30 cm» (o espera con un <code class="docutils literal notranslate"><span class="pre">delay</span></code>), el programa se queda atorado en esa línea: no lee sensores, no corre el PID, no reacciona a nada (ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>).
+Un robot necesita que <strong>cada vuelta del ciclo sea cortísima</strong> y regrese enseguida.</p>
+<section id="que-es-una-maquina-de-estados">
+<h2>Qué es una máquina de estados<a class="headerlink" href="#que-es-una-maquina-de-estados" title="Link to this heading"></a></h2>
+<p>La solución es dividir la tarea en <strong>estados</strong>. En cada ciclo, el robot <strong>solo hace lo que le toca en el estado actual</strong>, y si ya terminó, cambia de estado. Es como un mapa de «dónde estoy» y «a dónde voy después».</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Los estados (StateMachine.hpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">States</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">WAITING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PREP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">MOVING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">DELAY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">DECIDE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">APPROACH</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STEERING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TURN_DELAY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STOPPED</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<p>El <code class="docutils literal notranslate"><span class="pre">update()</span></code> es un <code class="docutils literal notranslate"><span class="pre">switch</span></code> sobre ese estado. Cada <code class="docutils literal notranslate"><span class="pre">case</span></code> hace <strong>un pedacito de trabajo y regresa</strong>:</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Estructura de update() (StateMachine.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">_currentState</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">States</span><span class="o">::</span><span class="no">WAITING</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_container</span><span class="p">.</span><span class="n">getDrive</span><span class="p">().</span><span class="n">stop</span><span class="p">();</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">_container</span><span class="p">.</span><span class="n">tofReady</span><span class="p">())</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Las ventajas son varias: el robot <strong>nunca se bloquea</strong>, siempre se sabe <strong>en qué paso está</strong> (útil para depurar: se imprime el estado) y agregar un comportamiento nuevo significa agregar un estado, no reescribir todo.</p>
+</section>
+<section id="que-hace-nuestra-maquina-de-estados">
+<h2>Qué hace nuestra máquina de estados<a class="headerlink" href="#que-hace-nuestra-maquina-de-estados" title="Link to this heading"></a></h2>
+<p>Esta máquina resuelve el reto casilla por casilla, con una regla simple: <strong>avanzar mientras no haya pared, y si hay pared, decidir hacia dónde girar</strong>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 82.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Estado</p></th>
+<th class="head"><p>Qué hace</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WAITING</span></code></p></td>
+<td><p>El robot está <strong>detenido</strong> hasta que el sensor de color ve <strong>amarillo</strong> (la casilla de inicio). Entonces guarda su rumbo actual.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PREP</span></code></p></td>
+<td><p>Prepara el movimiento de <strong>una casilla</strong> (pone el contador de distancia en cero y fija el rumbo objetivo).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MOVING</span></code></p></td>
+<td><p>Avanza la casilla con el PID. Al terminar se detiene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DELAY</span></code></p></td>
+<td><p>Espera un momento detenido (800 ms) para que el robot se asiente y los sensores entreguen lecturas frescas.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DECIDE</span></code></p></td>
+<td><p>Con el robot quieto, revisa las paredes y decide: seguir recto o girar (ver más abajo).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">APPROACH</span></code></p></td>
+<td><p>Si va a girar y hay una pared enfrente dentro de la casilla, se acerca a ella para centrarse (si no hay pared cerca, el robot gira directo).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STEERING</span></code></p></td>
+<td><p>Gira hasta el ángulo objetivo.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TURN_DELAY</span></code></p></td>
+<td><p>Una pausa corta (300 ms) después del giro, antes de avanzar.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STOPPED</span></code></p></td>
+<td><p>Terminó la ruta. Espera a ver <strong>verde</strong> para reanudar.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Cómo fluyen los estados</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>WAITING --(amarillo)--&gt; PREP --&gt; MOVING --&gt; DELAY --&gt; DECIDE
+                         ^                              |
+                         |         sin pared al frente  |
+                         +------------------------------+
+                         |
+                         |  con pared: gira
+                         |     DECIDE --&gt; APPROACH --&gt; STEERING --&gt; TURN_DELAY --+
+                         +-------------------------------------------------------+
+
+(si se detecta cian en la casilla, MOVING pasa a STOPPED; con verde, STOPPED reanuda en PREP)
+</pre></div>
+</div>
+</div>
+<section id="por-que-hay-pausas-delay-y-turn-delay">
+<h3>Por qué hay pausas (DELAY y TURN_DELAY)<a class="headerlink" href="#por-que-hay-pausas-delay-y-turn-delay" title="Link to this heading"></a></h3>
+<p>Parecen tiempo perdido, pero tienen un motivo: <strong>cuando el robot se detiene, todavía se está moviendo un poquito</strong> (inercia) y los sensores necesitan tiempo para dar una lectura nueva (el ToF tarda ~33 ms y cada
+ultrasónico se lee cada 80 ms). Decidir con lecturas viejas o con el robot meciéndose lleva a errores. Los tiempos son constantes de <code class="docutils literal notranslate"><span class="pre">driveConfig.h</span></code> (<code class="docutils literal notranslate"><span class="pre">kDecideDelayMs</span></code>, <code class="docutils literal notranslate"><span class="pre">kSteerSms</span></code>), así que se pueden ajustar sin tocar el código.</p>
+</section>
+<section id="la-decision">
+<h3>La decisión<a class="headerlink" href="#la-decision" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Regla de decisión (StateMachine.cpp)</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_container</span><span class="p">.</span><span class="n">frontWall</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_currentState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">States</span><span class="o">::</span><span class="n">PREP</span><span class="p">;</span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">leftOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">_container</span><span class="p">.</span><span class="n">leftWall</span><span class="p">();</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rightOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">_container</span><span class="p">.</span><span class="n">rightWall</span><span class="p">();</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">leftOpen</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">rightOpen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">startTurn</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kRightPref</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerDeg90</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerDeg90</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rightOpen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">startTurn</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerDeg90</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">leftOpen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">startTurn</span><span class="p">(</span><span class="o">-</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerDeg90</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kDeadEnd180</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">startTurn</span><span class="p">(</span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerDeg90</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_currentState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">States</span><span class="o">::</span><span class="n">STOPPED</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Se lee casi como una oración: <strong>si no hay pared al frente, sigue. Si hay pared y ambos lados están abiertos, prefiere un lado. Si solo uno está abierto, ve hacia él. Si ninguno, es un callejón: da la vuelta.</strong>
+Fíjate que <code class="docutils literal notranslate"><span class="pre">DECIDE</span></code> no mueve nada, solo <strong>elige el siguiente estado</strong>. El movimiento lo hace <code class="docutils literal notranslate"><span class="pre">Drive</span></code> (ver <a class="reference internal" href="../Subsistemas/Introduccion.html"><span class="doc">Subsistemas (Subsystems)</span></a>) y la lectura de paredes viene del contenedor (ver <a class="reference internal" href="../Contenedor/Introduccion.html"><span class="doc">Contenedor (RobotContainer)</span></a>).</p>
+<p>Las preferencias (<code class="docutils literal notranslate"><span class="pre">kRightPref</span></code>, <code class="docutils literal notranslate"><span class="pre">kDeadEnd180</span></code>) están en <code class="docutils literal notranslate"><span class="pre">driveConfig.h</span></code> como constantes. Así, <strong>cambiar el comportamiento del robot es cambiar un bool</strong>, no reescribir la lógica.</p>
+</section>
+<section id="el-rumbo-bloqueado">
+<h3>El rumbo «bloqueado»<a class="headerlink" href="#el-rumbo-bloqueado" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Acumular el objetivo en lugar de leerlo (StateMachine.cpp)</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">StateMachine::startTurn</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">deltaDeg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_lockedYaw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">normalizeY</span><span class="p">(</span><span class="n">_lockedYaw</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">deltaDeg</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Esta es una decisión pequeña pero importante. Al girar 90° a la derecha, <strong>no se lee el yaw actual y se le suma 90°</strong>: se suma 90° al <strong>rumbo objetivo anterior</strong> (<code class="docutils literal notranslate"><span class="pre">_lockedYaw</span></code>). Si el robot se quedó
+1.5° corto en un giro, ese error <strong>no se arrastra</strong> al siguiente: el siguiente objetivo se calcula desde el rumbo que debía tener, no del que terminó teniendo. Así, después de muchos giros, el robot sigue alineado con la cuadrícula.</p>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>El rumbo objetivo se fija <strong>una vez</strong> (cuando el robot ve amarillo) y todos los demás rumbos se calculan a partir de él. Es la misma razón por la que existe <code class="docutils literal notranslate"><span class="pre">resetHeading()</span></code> en el BNO055 (ver <a class="reference internal" href="../Componentes/BNO055.html"><span class="doc">Unidad de Medicion Inercial (IMU) (BNO055)</span></a>).</p>
+</div>
+</section>
+<section id="el-color-como-senal">
+<h3>El color como señal<a class="headerlink" href="#el-color-como-senal" title="Link to this heading"></a></h3>
+<p>En esta máquina el color no es solo información, es una <strong>señal de control</strong>: <strong>amarillo</strong> arranca, <strong>cian</strong> detiene al robot al terminar la casilla y <strong>verde</strong> reanuda desde <code class="docutils literal notranslate"><span class="pre">STOPPED</span></code>. Es la forma más sencilla de que el
+robot sepa «empezó» y «terminó» sin necesitar ningún botón.</p>
+</section>
+</section>
+<section id="cuando-el-reto-se-vuelve-mas-grande-el-maze">
+<h2>Cuando el reto se vuelve más grande: el maze<a class="headerlink" href="#cuando-el-reto-se-vuelve-mas-grande-el-maze" title="Link to this heading"></a></h2>
+<p>Con esta máquina de estados el robot <strong>sigue paredes</strong>, pero no <strong>recuerda</strong> nada. El reto de maze requiere explorar todo el laberinto, guardar el mapa y regresar por el mismo camino (ver <a class="reference internal" href="../Algoritmo/Planteamiento.html"><span class="doc">Introducción a la resolución de maze</span></a>).
+Eso es demasiado para un solo <code class="docutils literal notranslate"><span class="pre">switch</span></code>, así que se dividió en piezas, cada una con <strong>un solo trabajo</strong>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Pieza</p></th>
+<th class="head"><p>Trabajo</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Maze</span></code></p></td>
+<td><p>Guarda el mapa: qué casillas conoce, dónde hay paredes, qué color tiene cada una.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Explorer</span></code></p></td>
+<td><p>Decide <strong>a qué casilla ir</strong> para explorar (prefiere frente, izquierda, derecha y atrás, en ese orden) y regresa sobre sus pasos cuando no hay nada nuevo.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Navigator</span></code></p></td>
+<td><p>Lleva la <strong>posición y dirección</strong> en la cuadrícula, y traduce «ve al norte» en «gira y avanza una casilla».</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PathPlanner</span></code></p></td>
+<td><p>Calcula el camino más corto entre dos casillas con lo que ya conoce del mapa.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Trajectory</span></code></p></td>
+<td><p>Guarda cada movimiento exitoso, para poder <strong>regresar por el mismo camino</strong> al final.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MazeStateMachine</span></code></p></td>
+<td><p>El coordinador: decide <strong>cuándo</strong> usar cada pieza.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Su máquina de estados principal es más corta de lo que parece:</p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">Los estados del maze (MazeStateMachine.hpp)</span><a class="headerlink" href="#id7" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MazeState</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">INIT</span><span class="p">,</span><span class="w"> </span><span class="n">EXPLORING</span><span class="p">,</span><span class="w"> </span><span class="n">GOING_TO_FINISH</span><span class="p">,</span><span class="w"> </span><span class="n">RETURNING</span><span class="p">,</span><span class="w"> </span><span class="n">DONE</span><span class="p">,</span><span class="w"> </span><span class="n">FAULT</span><span class="w"> </span><span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Explora</strong> hasta no tener nada nuevo que ver, <strong>va a la meta</strong> por el camino más corto, <strong>regresa</strong> por el mismo camino y termina. Y si algo sale mal (un sensor no entrega nada, un movimiento falla, se pierde la posición),
+<strong>no se queda tonto ni sigue a ciegas</strong>: pasa a <code class="docutils literal notranslate"><span class="pre">FAULT</span></code> con un <strong>error con nombre</strong> (<code class="docutils literal notranslate"><span class="pre">MazeError</span></code>) que se imprime y dice qué falló.</p>
+<section id="interfaces-el-algoritmo-no-conoce-al-robot">
+<h3>Interfaces: el algoritmo no conoce al robot<a class="headerlink" href="#interfaces-el-algoritmo-no-conoce-al-robot" title="Link to this heading"></a></h3>
+<p>La decisión de diseño más importante del maze es esta:</p>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">Lo único que el algoritmo sabe del hardware (Sensors.hpp y MotionController.hpp)</span><a class="headerlink" href="#id8" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Sensors</span><span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">Sensors</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ready</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">beginScan</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">pollScan</span><span class="p">(</span><span class="n">SensorReadings</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MotionController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">MotionController</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">startTurn</span><span class="p">(</span><span class="n">Direction</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">startMove</span><span class="p">(</span><span class="n">Direction</span><span class="w"> </span><span class="n">heading</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="n">NavStatus</span><span class="w"> </span><span class="nf">update</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">abort</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// ...</span>
+</pre></div>
+</div>
+</div>
+<p>El algoritmo <strong>solo sabe pedir</strong> cosas como «escanea la casilla» o «gira hacia el este» y <strong>solo sabe recibir</strong> respuestas como «hay pared al frente» o «terminé». No sabe qué es un motor, un BNO055 o un PID.
+Quien traduce esas peticiones al robot real son dos clases pequeñas (<code class="docutils literal notranslate"><span class="pre">RobotSensors</span></code> y <code class="docutils literal notranslate"><span class="pre">DriveMotion</span></code>) que usan el contenedor y el <code class="docutils literal notranslate"><span class="pre">Drive</span></code>.</p>
+<p>Esto trae tres ventajas muy prácticas:</p>
+<ol class="arabic simple">
+<li><p><strong>Se puede probar sin robot.</strong> Como el algoritmo solo habla con esas dos interfaces, se podría correr contra sensores y movimiento simulados, y si algo sale mal sabrías que <strong>es el algoritmo</strong>, no el hardware.</p></li>
+<li><p><strong>Se puede cambiar el hardware sin tocar el algoritmo.</strong> Es la misma separación entre <em>posicionamiento</em> y <em>movimiento</em> de la que habla <a class="reference internal" href="../Algoritmo/Planteamiento.html"><span class="doc">Introducción a la resolución de maze</span></a>.</p></li>
+<li><p><strong>Se reusa.</strong> El reto Levels usa las mismas piezas (<code class="docutils literal notranslate"><span class="pre">Maze</span></code>, <code class="docutils literal notranslate"><span class="pre">Navigator</span></code>, <code class="docutils literal notranslate"><span class="pre">DriveMotion</span></code>) y solo agrega las suyas.</p></li>
+</ol>
+</section>
+<section id="escanear-sin-creerle-a-una-sola-lectura">
+<h3>Escanear sin creerle a una sola lectura<a class="headerlink" href="#escanear-sin-creerle-a-una-sola-lectura" title="Link to this heading"></a></h3>
+<p>Para saber qué hay en una casilla, <code class="docutils literal notranslate"><span class="pre">RobotSensors</span></code> no pregunta una vez: <strong>toma muchas lecturas durante una ventana de tiempo y vota</strong>.</p>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Escaneo por votación (RobotSensors.cpp)</span><a class="headerlink" href="#id9" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">el</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">maze</span><span class="o">::</span><span class="n">MazeConfig</span><span class="o">::</span><span class="n">kScanSettleMs</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">el</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">maze</span><span class="o">::</span><span class="n">MazeConfig</span><span class="o">::</span><span class="n">kScanSettleMs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">maze</span><span class="o">::</span><span class="n">MazeConfig</span><span class="o">::</span><span class="n">kScanWindowMs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">sample</span><span class="p">();</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="n">out</span><span class="p">.</span><span class="n">fWall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">front_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">n_</span><span class="p">;</span>
+<span class="n">out</span><span class="p">.</span><span class="n">lWall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">left_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">n_</span><span class="p">;</span>
+<span class="n">out</span><span class="p">.</span><span class="n">rWall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">right_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">n_</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Primero <strong>espera</strong> (<code class="docutils literal notranslate"><span class="pre">kScanSettleMs</span></code>, 700 ms) a que el robot se asiente y luego <strong>muestrea</strong> durante <code class="docutils literal notranslate"><span class="pre">kScanWindowMs</span></code> (400 ms). Al final, hay pared si <strong>más de la mitad</strong> de las muestras dijeron que había.
+El color se decide igual, pero exigiendo que el ganador tenga al menos 60% de los votos (<code class="docutils literal notranslate"><span class="pre">kColorAgreePct</span></code>). Si no hay acuerdo suficiente, la lectura se marca como <strong>inválida</strong> y la máquina de estados decide si repite el escaneo o falla.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Los tiempos y porcentajes están en <code class="docutils literal notranslate"><span class="pre">MazeConfig.hpp</span></code>. Si el robot se equivoca de pared o de color con frecuencia, <strong>alarga la ventana o sube el porcentaje de acuerdo</strong>; si es muy lento, hazlo al revés.</p>
+</div>
+</section>
+</section>
 </section>
 
 

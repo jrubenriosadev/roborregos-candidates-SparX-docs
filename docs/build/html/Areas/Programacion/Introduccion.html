@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="../../genindex.html" />
     <link rel="search" title="Búsqueda" href="../../search.html" />
-    <link rel="next" title="Programación de componentes" href="ComponentesProgra.html" />
-    <link rel="prev" title="RIB - EYE" href="../../RibEye/Rib-eye.html" /> 
+    <link rel="next" title="Ciclo principal y modos de prueba" href="Main/CicloPrincipal.html" />
+    <link rel="prev" title="SparX" href="../../RibEye/Rib-eye.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,15 +44,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Trabajo en equipo</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RibEye/Rib-eye.html">Colaboración</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Programación</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#resolucion-de-retos">Resolución de retos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ComponentesProgra.html">Configuración de componentes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="PID/IntroduccionPID.html">Introducción</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
@@ -68,6 +71,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Retos/General/Introduccion.html">Reglas generales</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Retos/Maze/Introduccion.html">Maze</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Retos/Levels/Introduccion.html">Levels</a></li>
 </ul>
@@ -108,17 +112,67 @@ microcontrolador, ya que PlatformIO es compatible con muchísimos microcontrolad
 <p>2. <strong>C++:</strong> Este es un lenguaje de programación que tiene un fuerte enfoque en el control de bajo nivel, lo que nos permite tener una manipulación
 más directa del hardware y de los recursos del microcontrolador, además de ser un lenguaje bastante eficiente en cuanto a su velocidad y tiempo de ejecución.</p>
 </section>
+<section id="retos-de-cada-semana">
+<h2>Retos de cada semana<a class="headerlink" href="#retos-de-cada-semana" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Semana 2:</strong> El mayor reto fue adaptarme a cpp luego de haber trabajado por mucho tiempo en Java, pero las estructuras para los códigos ya las tenía bastante ensayadas, por lo que no fue difícil darle estructura al código</p></li>
+<li><p><strong>Semana 3:</strong> Lo más difícil fue buscar documentación de las configuraciones de sensores, aprendí que es más fácil buscarlas en Arduino y simplemente hacer la conversión a ESP32</p></li>
+<li><p><strong>Semana 4:</strong> Lo más díficl de esta semana fue empezar con algunas pruebas, ya que teníamos que tener bastantes iteraciones dentro de las pruebas.</p></li>
+<li><p><strong>Semana 5:</strong> En la semana 5 no hubieron muchas complicaciones, pero el hecho de tener que recalibrar cada que haya cierto cambio si fue algo tedioso, pero me volvi más consistente en eso.</p></li>
+<li><p><strong>Semana 6:</strong> Lo más difícil fue hacer los algoritmos para ambas competencias en pseudocódigo al no tener el robot en físico, pero una vez que el motion funciona, el teórico tiene lógica de que también.</p></li>
+</ul>
+</section>
+<section id="como-esta-pensado-el-codigo">
+<h2>Cómo está pensado el código<a class="headerlink" href="#como-esta-pensado-el-codigo" title="Link to this heading"></a></h2>
+<p>Antes de entrar a cada archivo, conviene entender <strong>la idea completa</strong>, porque casi todo el código sigue la misma lógica: construir de abajo hacia arriba,
+donde cada capa <strong>solo conoce a la de abajo</strong> y resuelve <strong>un solo problema</strong>.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Capas del código</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retos (maze, levels) dicen los qués
+Máquina de estados deciden cuando
+Subsistemas (Drive) saben como mover
+Contenedor (RobotContainer) saben que tiene el robot
+Componentes (Motor, Bno...) hablan con el hardware
+</pre></div>
+</div>
+</div>
+<p>Cada capa tiene su propia página:</p>
+<ol class="arabic simple">
+<li><p><strong>Componentes:</strong> una clase por cada sensor o actuador. Esconden los detalles del hardware (I2C, pulsos, interrupciones).</p></li>
+<li><p><strong>Contenedor:</strong> el dueño de todos los sensores. Los inicializa, los actualiza y le da al resto del código lecturas ya filtradas y con sentido («hay pared al frente»).</p></li>
+<li><p><strong>PID:</strong> el controlador que nos permite ir recto y girar con precisión.</p></li>
+<li><p><strong>Subsistemas:</strong> el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> junta los motores y los PID para ofrecer movimientos completos como «avanza una casilla».</p></li>
+<li><p><strong>Máquina de estados:</strong> ordena los movimientos en el tiempo sin bloquear nunca el programa.</p></li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Si estás empezando, léelas en ese orden. Cada página explica qué problema resuelve y por qué se resolvió así, antes de mostrar el poco código
+que realmente importa.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>En estas páginas <strong>no vamos a mostrar todo el código</strong>, solo las partes de configuración y los fragmentos clave. El código completo está en el repositorio del robot.</p>
+</div>
+</section>
 <section id="resolucion-de-retos">
 <h2>Resolución de retos<a class="headerlink" href="#resolucion-de-retos" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Ciclo principal</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Main/CicloPrincipal.html#el-ciclo-de-control-de-20-ms">El ciclo de control de 20 ms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Main/CicloPrincipal.html#dos-buses-i2c">Dos buses I2C</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Main/CicloPrincipal.html#modos-de-prueba">Modos de prueba</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Main/CicloPrincipal.html#escaner-i2c">Escáner I2C</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Componentes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ComponentesProgra.html">Configuración de componentes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Componentes/JGA-125371.html">Motores (con encoder) JGA-125 371</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Componentes/TCS34725.html">Sensor de color TCS34725</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Componentes/HC-SR04.html">Sensor ultrasónico HC-SR04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Componentes/VL53L0X.html">Sensor láser VL53L0X</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Componentes/BNO055.html">Unidad de Medicion Inercial (imu)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ComponentesProgra.html#las-reglas-que-siguen-todos-los-componentes">Las reglas que siguen todos los componentes</a></li>
 </ul>
 </li>
 </ul>
@@ -126,20 +180,45 @@ más directa del hardware y de los recursos del microcontrolador, además de ser
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">PID</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="PID/IntroduccionPID.html">Introducción</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PID/IntroduccionPID.html">Introducción</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PID/IntroduccionPID.html#la-idea-en-tres-frases">La idea en tres frases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PID/IntroduccionPID.html#construyendo-el-controlador-paso-a-paso">Construyendo el controlador paso a paso</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PID/IntroduccionPID.html#como-lo-usa-el-robot">Cómo lo usa el robot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PID/IntroduccionPID.html#como-tunear">Cómo tunear</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contenedor y Máquina de Estados</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Contenedor/Introduccion.html#construyendolo">Construyéndolo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Contenedor/Introduccion.html#preguntas-no-numeros">Preguntas, no números</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Contenedor/Introduccion.html#el-color">El color</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Contenedor/Introduccion.html#cuando-agregar-algo-al-contenedor">Cuándo agregar algo al contenedor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="MaquinaEstados/Introduccion.html#que-es-una-maquina-de-estados">Qué es una máquina de estados</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MaquinaEstados/Introduccion.html#que-hace-nuestra-maquina-de-estados">Qué hace nuestra máquina de estados</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MaquinaEstados/Introduccion.html#cuando-el-reto-se-vuelve-mas-grande-el-maze">Cuando el reto se vuelve más grande: el maze</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Subsistemas</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Subsistemas/Introduccion.html">Introducción a los subsistemas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#dos-decisiones-de-diseno">Dos decisiones de diseño</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#avanzar-una-casilla-movetile">Avanzar una casilla (moveTile)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#girar-en-su-lugar-turntoangle">Girar en su lugar (turnToAngle)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#acercarse-a-la-pared-approachfront">Acercarse a la pared (approachFront)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#reversa-recta-moveback">Reversa recta (moveBack)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Subsistemas/Introduccion.html#lazo-abierto-setopenloop">Lazo abierto (setOpenLoop)</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -155,8 +234,8 @@ más directa del hardware y de los recursos del microcontrolador, además de ser
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="../../RibEye/Rib-eye.html" class="btn btn-neutral float-left" title="RIB - EYE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="ComponentesProgra.html" class="btn btn-neutral float-right" title="Programación de componentes" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../RibEye/Rib-eye.html" class="btn btn-neutral float-left" title="SparX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Main/CicloPrincipal.html" class="btn btn-neutral float-right" title="Ciclo principal y modos de prueba" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

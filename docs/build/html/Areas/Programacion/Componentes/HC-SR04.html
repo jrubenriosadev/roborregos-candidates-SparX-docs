@@ -52,15 +52,18 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="JGA-125371.html">Motores (con encoder) JGA-125 371</a></li>
-<li class="toctree-l4"><a class="reference internal" href="TCS34725.html">Sensor de color TCS34725</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Sensor ultrasónico HC-SR04</a></li>
-<li class="toctree-l4"><a class="reference internal" href="VL53L0X.html">Sensor láser VL53L0X</a></li>
-<li class="toctree-l4"><a class="reference internal" href="BNO055.html">Unidad de Medicion Inercial (imu)</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../ComponentesProgra.html#las-reglas-que-siguen-todos-los-componentes">Las reglas que siguen todos los componentes</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
 </ul>
 </li>
@@ -103,6 +106,105 @@
              
   <section id="sensor-ultrasonico-hc-sr04">
 <h1>Sensor Ultrasónico (HC-SR04)<a class="headerlink" href="#sensor-ultrasonico-hc-sr04" title="Link to this heading"></a></h1>
+<p>Los ultrasónicos van a los <strong>lados</strong> del robot y nos dicen si hay una pared a la izquierda o a la derecha (ver <a class="reference internal" href="../../Electronica/Componentes/Sensores.html"><span class="doc">Sensores</span></a> para saber por qué se
+eligieron para los lados). Son baratos y fáciles de usar, pero tienen un problema que condiciona todo el código: <strong>son ruidosos y bloquean</strong> mientras esperan el eco.</p>
+<p>Este componente se construye en dos partes: la clase <code class="docutils literal notranslate"><span class="pre">Ultrasonic</span></code> (que habla con el sensor) y el <code class="docutils literal notranslate"><span class="pre">WallFilter</span></code> (que limpia el ruido).</p>
+<section id="como-funciona-el-sensor">
+<h2>Cómo funciona el sensor<a class="headerlink" href="#como-funciona-el-sensor" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Se manda un pulso de 10 µs al pin <strong>TRIGGER</strong>.</p></li>
+<li><p>El sensor emite ultrasonido y pone el pin <strong>ECHO</strong> en alto <strong>mientras espera el rebote</strong>.</p></li>
+<li><p>El tiempo que ECHO estuvo en alto es el viaje de ida y vuelta del sonido.</p></li>
+</ol>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Convertir el eco en distancia (Ultrasonic.cpp)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pulseIn</span><span class="p">(</span><span class="n">echoPin</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">,</span><span class="w"> </span><span class="n">maxTimeoutUs</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">duration</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">116</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="n">lastDistance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxDistanceCm</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="n">lastDistance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">duration</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.0343f</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>El sonido viaja a 0.0343 cm por microsegundo y la distancia se divide entre 2 porque el tiempo medido es de <strong>ida y vuelta</strong>.</p>
+</section>
+<section id="tres-decisiones-que-importan">
+<h2>Tres decisiones que importan<a class="headerlink" href="#tres-decisiones-que-importan" title="Link to this heading"></a></h2>
+<section id="limite-de-distancia">
+<h3>1. Límite de distancia<a class="headerlink" href="#limite-de-distancia" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Timeout según el rango máximo (Ultrasonic.cpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">maxTimeoutUs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)(</span><span class="n">maxDistanceCm</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">0.0343f</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3000UL</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pulseIn</span></code> <strong>detiene el programa</strong> hasta que llega el eco o se acaba el timeout. Si el sensor no encuentra nada (no hay pared) y no le ponemos un límite, el programa se queda esperando
+(por defecto, hasta 1 segundo), y durante ese tiempo el PID no corre y el robot va «a ciegas».</p>
+<p>Por eso se calcula un timeout <strong>a partir de la distancia máxima</strong> que nos interesa. Con <code class="docutils literal notranslate"><span class="pre">maxRange</span> <span class="pre">=</span> <span class="pre">15</span></code> cm (<code class="docutils literal notranslate"><span class="pre">pinsConfig.h</span></code>), el bloqueo máximo es de unos <strong>3.9 ms</strong>.
+Más allá de 15 cm no hay pared que nos importe, así que no tiene sentido esperar.</p>
+</section>
+<section id="una-lectura-invalida-no-es-cero">
+<h3>2. Una lectura inválida no es «cero»<a class="headerlink" href="#una-lectura-invalida-no-es-cero" title="Link to this heading"></a></h3>
+<p>Si no hay eco, o llega demasiado rápido (menos de 116 µs, unos 2 cm, que es ruido o algo pegado al sensor), la lectura se marca como <strong>inválida</strong> y la distancia se deja en el valor máximo.</p>
+<p>Esto es muy útil: <strong>sin eco = no hay nada cerca = no hay pared</strong>. Con el rango en 15 cm y el umbral de pared también en 15 cm (<code class="docutils literal notranslate"><span class="pre">kSWallcm</span></code>), una lectura sin eco <strong>nunca cuenta como pared</strong>.</p>
+</section>
+<section id="nunca-leer-los-dos-al-mismo-tiempo">
+<h3>3. Nunca leer los dos al mismo tiempo<a class="headerlink" href="#nunca-leer-los-dos-al-mismo-tiempo" title="Link to this heading"></a></h3>
+<p>Si los dos ultrasónicos disparan a la vez, cada uno puede escuchar el eco del otro (<strong>diafonía</strong>) y la lectura es basura. En el contenedor se <strong>alternan</strong> (izquierdo, derecho, izquierdo…)
+cada 40 ms, por lo que cada sensor se lee cada 80 ms (ver <a class="reference internal" href="../Contenedor/Introduccion.html"><span class="doc">Contenedor (RobotContainer)</span></a>).</p>
+</section>
+</section>
+<section id="el-filtro-de-pared-wallfilter">
+<h2>El filtro de pared (WallFilter)<a class="headerlink" href="#el-filtro-de-pared-wallfilter" title="Link to this heading"></a></h2>
+<p>Aun con todo lo anterior, de vez en cuando una lectura sale <strong>muy mal</strong> (un pico), y un pico puede hacer que el robot crea que desapareció una pared. Para eso está <code class="docutils literal notranslate"><span class="pre">WallFilter</span></code>.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Mediana de las últimas 3 lecturas (WallFilter.hpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_h</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_h</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_h</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="k">if</span><span class="p">((</span><span class="n">a</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">c</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="k">if</span><span class="p">((</span><span class="n">b</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">c</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>La idea es guardar las <strong>últimas 3 lecturas válidas</strong> y devolver <strong>la del medio</strong> (la mediana). Un pico aislado nunca es la del medio, así que desaparece.</p>
+<section id="por-que-mediana-y-no-promedio">
+<h3>Por qué mediana y no promedio<a class="headerlink" href="#por-que-mediana-y-no-promedio" title="Link to this heading"></a></h3>
+<p>Un promedio <strong>arrastra</strong> el pico: (10, 10, 100) promedia 40. La mediana ignora el valor extremo: (10, 10, 100) da 10. Además es muy barato de calcular (sin arreglos grandes ni ordenamientos).</p>
+</section>
+<section id="que-pasa-cuando-no-hay-lecturas">
+<h3>Qué pasa cuando no hay lecturas<a class="headerlink" href="#que-pasa-cuando-no-hay-lecturas" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Olvidar el historial (WallFilter.hpp)</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">_miss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="n">_miss</span><span class="o">++</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="n">_miss</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">kMax</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">_i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Si llegan <strong>2 lecturas inválidas seguidas</strong> (<code class="docutils literal notranslate"><span class="pre">kMax</span> <span class="pre">=</span> <span class="pre">2</span></code>), el filtro <strong>olvida todo su historial</strong>. Así, cuando la pared desaparece de verdad, el robot no sigue creyendo en una distancia vieja.
+Mientras tenga menos de 3 datos, devuelve el único que tiene (o el promedio de 2).</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Si ves que el robot «tarda» en darse cuenta de que se abrió una pared, el filtro está reteniendo demasiado. Si ves que se confunde con picos, está reteniendo muy poco.
+<code class="docutils literal notranslate"><span class="pre">kMax</span></code> y el tamaño del historial (3) son los números a ajustar.</p>
+</div>
+</section>
+</section>
+<section id="como-ajustarlo">
+<h2>Cómo ajustarlo<a class="headerlink" href="#como-ajustarlo" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>maxRange:</strong> si el sensor «ve» paredes que no son (por ejemplo la pared del carril de al lado), baja el rango. Si no detecta la pared propia, súbelo.</p></li>
+<li><p><strong>kSWallcm:</strong> distancia a la que se considera pared. Mídela con una pared real a la distancia a la que el robot va normalmente.</p></li>
+<li><p>Usa el modo de <strong>prueba de sensores</strong> (ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>) para ver las lecturas en vivo mientras mueves una pared con la mano.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>El pin ECHO entrega 5 V, pero la ESP32 solo soporta 3.3 V. Recuerda el divisor de voltaje de la placa (ver <a class="reference internal" href="../../Electronica/Componentes/Sensores.html"><span class="doc">Sensores</span></a>).</p>
+</div>
+</section>
 </section>
 
 

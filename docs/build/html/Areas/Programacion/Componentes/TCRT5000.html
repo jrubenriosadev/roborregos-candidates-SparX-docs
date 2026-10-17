@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensor de línea (TCRT5000) &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Introducción a PID" href="../PID/IntroduccionPID.html" />
+    <link rel="prev" title="Unidad de Medicion Inercial (IMU) (BNO055)" href="BNO055.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../ComponentesProgra.html#las-reglas-que-siguen-todos-los-componentes">Las reglas que siguen todos los componentes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Programación</a></li>
+          <li class="breadcrumb-item"><a href="../ComponentesProgra.html">Programación de componentes</a></li>
+      <li class="breadcrumb-item active">Sensor de línea (TCRT5000)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Programacion/Componentes/TCRT5000.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sensor-de-linea-tcrt5000">
+<h1>Sensor de línea (TCRT5000)<a class="headerlink" href="#sensor-de-linea-tcrt5000" title="Link to this heading"></a></h1>
+<p>En el reto Levels hay <strong>líneas blancas</strong> en el piso que el robot no puede cruzar. Para verlas se usan <strong>dos sensores TCRT5000</strong> apuntando al piso, uno de cada lado. Este sensor manda luz infrarroja y mide
+cuánta <strong>regresa</strong>: el piso verde refleja poco y la cinta blanca refleja mucho.</p>
+<p>El problema es el mismo de siempre: <strong>una lectura analógica no es una decisión</strong>. La clase <code class="docutils literal notranslate"><span class="pre">LineSensor</span></code> convierte un número entre 0 y 4095 en una respuesta clara: <code class="docutils literal notranslate"><span class="pre">isWhite()</span></code>.</p>
+<section id="construyendo-la-decision">
+<h2>Construyendo la decisión<a class="headerlink" href="#construyendo-la-decision" title="Link to this heading"></a></h2>
+<section id="una-lectura-analogica">
+<h3>1. Una lectura analógica<a class="headerlink" href="#una-lectura-analogica" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Valores de calibración (levelsConfig.h)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">kDigital</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">kWhiteIsHigh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">kThreshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<ul class="simple">
+<li><p><strong>kDigital:</strong> el módulo tiene una salida digital (con un potenciómetro para el umbral) y una analógica. Usamos la <strong>analógica</strong> para poder ajustar el umbral por código, sin atornillar nada.</p></li>
+<li><p><strong>kWhiteIsHigh:</strong> en la mayoría de estos módulos, <strong>más reflejo baja el valor</strong> leído, así que el blanco da un número <em>menor</em> que el piso. Si en el tuyo es al revés, cambia este <code class="docutils literal notranslate"><span class="pre">bool</span></code>.</p></li>
+<li><p><strong>kThreshold:</strong> el valor (de 0 a 4095, porque el ADC de la ESP32 es de 12 bits) que separa «piso» de «línea».</p></li>
+</ul>
+</section>
+<section id="histeresis-dos-umbrales-en-lugar-de-uno">
+<h3>2. Histéresis: dos umbrales en lugar de uno<a class="headerlink" href="#histeresis-dos-umbrales-en-lugar-de-uno" title="Link to this heading"></a></h3>
+<p>Si el robot está justo sobre el borde de la línea, la lectura <strong>oscila</strong> alrededor del umbral y la respuesta parpadea entre blanco y no blanco. La solución es la <strong>histéresis</strong>: para pasar a «blanco» hay que cruzar
+el umbral <strong>por un lado</strong>, y para volver a «no blanco» hay que cruzarlo <strong>por el otro</strong>.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Histéresis (LineSensor.cpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">thr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LineConfig</span><span class="o">::</span><span class="n">kThreshold</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">hys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LineConfig</span><span class="o">::</span><span class="n">kHysteresis</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LineConfig</span><span class="o">::</span><span class="n">kWhiteIsHigh</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_raw</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_raw</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LineConfig</span><span class="o">::</span><span class="n">kWhiteIsHigh</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">thr</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="n">thr</span><span class="p">;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">candidate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_white</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">hys</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hys</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>La primera parte (<code class="docutils literal notranslate"><span class="pre">level</span></code> y <code class="docutils literal notranslate"><span class="pre">limit</span></code>) <strong>voltea el signo</strong> cuando el blanco da valores menores, para escribir la comparación una sola vez. Después, el candidato se evalúa contra
+<code class="docutils literal notranslate"><span class="pre">limit</span> <span class="pre">+</span> <span class="pre">hys</span></code> si estaba «apagado» y contra <code class="docutils literal notranslate"><span class="pre">limit</span> <span class="pre">-</span> <span class="pre">hys</span></code> si estaba «encendido». Con <code class="docutils literal notranslate"><span class="pre">kHysteresis</span> <span class="pre">=</span> <span class="pre">150</span></code> hay una «zona muerta» de 300 unidades en la que la respuesta no cambia.</p>
+</section>
+<section id="confirmar-antes-de-creer">
+<h3>3. Confirmar antes de creer<a class="headerlink" href="#confirmar-antes-de-creer" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Confirmación (LineSensor.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">_count</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">LineConfig</span><span class="o">::</span><span class="n">kConfirm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_white</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">candidate</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Además de la histéresis, el cambio <strong>no se acepta a la primera</strong>: hay que ver el mismo resultado <code class="docutils literal notranslate"><span class="pre">kConfirm</span></code> veces seguidas (2 lecturas, de 20 ms cada una). Es un costo pequeño en tiempo de reacción
+a cambio de no frenar por una lectura mala.</p>
+</section>
+</section>
+<section id="como-calibrarlo">
+<h2>Cómo calibrarlo<a class="headerlink" href="#como-calibrarlo" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Carga el modo de <strong>prueba de sensores</strong> (ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>). Imprime el valor crudo de cada TCRT5000 y si lo considera blanco.</p></li>
+<li><p>Anota el valor crudo <strong>sobre el piso verde</strong> y <strong>sobre la cinta blanca</strong>.</p></li>
+<li><p>Pon <code class="docutils literal notranslate"><span class="pre">kThreshold</span></code> <strong>a la mitad</strong> entre ambos.</p></li>
+<li><p>Si el robot «parpadea» cerca de la línea, <strong>sube</strong> <code class="docutils literal notranslate"><span class="pre">kHysteresis</span></code>. Si tarda en verla, <strong>bájala</strong> o baja <code class="docutils literal notranslate"><span class="pre">kConfirm</span></code>.</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Los pines de los sensores (GPIO36 y GPIO39) son <strong>solo de entrada</strong> y pertenecen al ADC1, que no choca con el Bluetooth (el ADC2 sí). Además, el módulo se alimenta a <strong>3.3 V</strong> para que su salida analógica
+nunca pase de lo que soporta la ESP32.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="BNO055.html" class="btn btn-neutral float-left" title="Unidad de Medicion Inercial (IMU) (BNO055)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../PID/IntroduccionPID.html" class="btn btn-neutral float-right" title="Introducción a PID" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

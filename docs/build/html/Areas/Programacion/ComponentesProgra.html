@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="../../genindex.html" />
     <link rel="search" title="Búsqueda" href="../../search.html" />
-    <link rel="next" title="Configuración para motor" href="Componentes/JGA-125371.html" />
-    <link rel="prev" title="Área de Programación" href="Introduccion.html" /> 
+    <link rel="next" title="Constantes y pines" href="Componentes/Constantes.html" />
+    <link rel="prev" title="Ciclo principal y modos de prueba" href="Main/CicloPrincipal.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,13 +52,12 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="Introduccion.html">Programación</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Configuración de componentes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Componentes/JGA-125371.html">Motores (con encoder) JGA-125 371</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Componentes/TCS34725.html">Sensor de color TCS34725</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Componentes/HC-SR04.html">Sensor ultrasónico HC-SR04</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Componentes/VL53L0X.html">Sensor láser VL53L0X</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Componentes/BNO055.html">Unidad de Medicion Inercial (imu)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#las-reglas-que-siguen-todos-los-componentes">Las reglas que siguen todos los componentes</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="PID/IntroduccionPID.html">Introducción</a></li>
@@ -109,24 +108,41 @@
 <p>Es importante tener listos los métodos para todos los componentes que vayamos a utilizar, esto quiere decir que es muy conveniente
 tener POO aplicada a nuestros componentes para simplemente invocarlos como objetos y utilizar sus métodos en vez de tener que
 configurar 1 nuevo cada vez que querramos usarlo.</p>
+<section id="las-reglas-que-siguen-todos-los-componentes">
+<h2>Las reglas que siguen todos los componentes<a class="headerlink" href="#las-reglas-que-siguen-todos-los-componentes" title="Link to this heading"></a></h2>
+<p>Todos los componentes de RIB-EYE se escribieron con las mismas tres reglas. Si las entiendes aquí, el resto de las páginas se leen mucho más rápido.</p>
+<ol class="arabic simple">
+<li><p><strong>init() y update() separados.</strong> <code class="docutils literal notranslate"><span class="pre">init()</span></code> configura el hardware una sola vez y <code class="docutils literal notranslate"><span class="pre">update()</span></code> se llama en cada vuelta del ciclo principal.</p></li>
+<li><p><strong>Nada bloquea.</strong> Un <code class="docutils literal notranslate"><span class="pre">delay()</span></code> o esperar a que un sensor termine detiene todo el programa, incluyendo el PID. Por eso los sensores usan la idea de
+«pregunta si ya hay una lectura nueva, y si no, sigue con tu vida» (por ejemplo <code class="docutils literal notranslate"><span class="pre">isRangeComplete()</span></code> o <code class="docutils literal notranslate"><span class="pre">millis()</span></code>).</p></li>
+<li><p><strong>Una lectura inválida se nota.</strong> Cada sensor puede decir «esta lectura no sirve» (<code class="docutils literal notranslate"><span class="pre">isValid()</span></code>, <code class="docutils literal notranslate"><span class="pre">isUp()</span></code>), y quien lo usa decide qué hacer.</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Los pines y las constantes <strong>no</strong> viven dentro de los componentes, sino en un solo lugar (<code class="docutils literal notranslate"><span class="pre">include/constants</span></code>). Así, si cambia el cableado o hay que
+ajustar algo, se cambia un solo archivo. Mira <a class="reference internal" href="Componentes/Constantes.html"><span class="doc">Constantes y pines</span></a>.</p>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Componentes</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Componentes/Constantes.html">Constantes y pines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Componentes/JGA-125371.html">Motores (con encoder) JGA-125 371</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Componentes/TCS34725.html">Sensor de color TCS34725</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Componentes/HC-SR04.html">Sensor ultrasónico HC-SR04</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Componentes/VL53L0X.html">Sensor láser VL53L0X</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Componentes/BNO055.html">Unidad de Medicion Inercial (imu)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Componentes/TCRT5000.html">Sensor de línea TCRT5000</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="Introduccion.html" class="btn btn-neutral float-left" title="Área de Programación" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="Componentes/JGA-125371.html" class="btn btn-neutral float-right" title="Configuración para motor" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Main/CicloPrincipal.html" class="btn btn-neutral float-left" title="Ciclo principal y modos de prueba" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Componentes/Constantes.html" class="btn btn-neutral float-right" title="Constantes y pines" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

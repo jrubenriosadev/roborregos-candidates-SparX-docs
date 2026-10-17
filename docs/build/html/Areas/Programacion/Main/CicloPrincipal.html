@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ciclo principal y modos de prueba &mdash; documentación de SparX Docs - 0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="../../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Programación de componentes" href="../ComponentesProgra.html" />
+    <link rel="prev" title="Área de Programación" href="../Introduccion.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SparX Docs
+              <img src="../../../_static/ribeyelogo.png" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conoce a Rib Eye</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Ciclo principal y modos de prueba</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#el-ciclo-de-control-de-20-ms">El ciclo de control de 20 ms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dos-buses-i2c">Dos buses I2C</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modos-de-prueba">Modos de prueba</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#escaner-i2c">Escáner I2C</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Maze/Introduccion.html">Maze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Retos/Levels/Introduccion.html">Levels</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SparX Docs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Programación</a></li>
+      <li class="breadcrumb-item active">Ciclo principal y modos de prueba</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Areas/Programacion/Main/CicloPrincipal.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ciclo-principal-y-modos-de-prueba">
+<h1>Ciclo principal y modos de prueba<a class="headerlink" href="#ciclo-principal-y-modos-de-prueba" title="Link to this heading"></a></h1>
+<p>Esta es la primera página que conviene leer, porque explica <strong>cómo corre todo</strong>: en qué momento se llama a cada cosa y cómo probamos el robot sin tener que escribir un programa nuevo cada vez.
+Todo vive en <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code>.</p>
+<section id="el-ciclo-de-control-de-20-ms">
+<h2>El ciclo de control de 20 ms<a class="headerlink" href="#el-ciclo-de-control-de-20-ms" title="Link to this heading"></a></h2>
+<p>Un robot que se mueve con PID necesita algo muy importante: <strong>que el controlador se ejecute siempre a la misma frecuencia</strong>. Si una vuelta del <code class="docutils literal notranslate"><span class="pre">loop()</span></code> tarda 5 ms y la siguiente 40 ms, el cálculo
+de la derivada y de la integral del PID se descompone (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p>
+<p>Por eso <code class="docutils literal notranslate"><span class="pre">loop()</span></code> no corre «lo más rápido que pueda», sino <strong>una vez cada 20 ms</strong> (50 veces por segundo):</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Periodo fijo (main.cpp)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micros</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="kt">long</span><span class="p">)(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">nextTick</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="n">nextTick</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">kControlPeriod</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="kt">long</span><span class="p">)(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">nextTick</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">kControlPeriod</span><span class="p">)</span><span class="w"> </span><span class="n">nextTick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">kControlPeriod</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">container</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="w">    </span><span class="n">testLoop</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<p>Esto se entiende por partes:</p>
+<ol class="arabic simple">
+<li><p><strong>Esperar su turno.</strong> Si todavía no toca la siguiente vuelta, no hace nada y sale.</p></li>
+<li><p><strong>Programar la siguiente vuelta.</strong> Con <code class="docutils literal notranslate"><span class="pre">nextTick</span> <span class="pre">+=</span> <span class="pre">kControlPeriod</span></code> se programa la siguiente vuelta <strong>sumando</strong> el periodo al tiempo anterior (no a «ahora»). Así no se acumula error: si una vuelta salió con 1 ms de retraso, la siguiente lo compensa.</p></li>
+<li><p><strong>No ponerse al corriente.</strong> Si el programa se atrasó <strong>más de un periodo completo</strong> (por ejemplo, por una lectura lenta), no intenta «ponerse al corriente» con varias vueltas seguidas; mejor se reinicia el reloj.</p></li>
+<li><p><strong>El orden importa:</strong> primero <code class="docutils literal notranslate"><span class="pre">container.update()</span></code> (leer todos los sensores) y <strong>después</strong> la lógica del robot, para que siempre decida con lecturas frescas.</p></li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Toda la lógica del robot (máquina de estados, PID, retos) debe ser <strong>no bloqueante</strong>: cada vuelta hace un poquito de trabajo y regresa. Un <code class="docutils literal notranslate"><span class="pre">delay()</span></code> largo en cualquier parte congela
+sensores y PID por igual.</p>
+</div>
+</section>
+<section id="dos-buses-i2c">
+<h2>Dos buses I2C<a class="headerlink" href="#dos-buses-i2c" title="Link to this heading"></a></h2>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Configuración de buses (main.cpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Wire</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="mi">22</span><span class="p">);</span>
+<span class="n">Wire</span><span class="p">.</span><span class="n">setClock</span><span class="p">(</span><span class="mi">100000</span><span class="p">);</span>
+<span class="n">Wire</span><span class="p">.</span><span class="n">setTimeOut</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="n">Wire1</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">18</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Wire</span></code> (pines 21 y 22) para el BNO055 y el TCS34725, y <code class="docutils literal notranslate"><span class="pre">Wire1</span></code> (pines 5 y 18) para el VL53L0X. La razón de usar dos buses está en <a class="reference internal" href="../Componentes/VL53L0X.html"><span class="doc">Sensor laser (VL53L0X)</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setClock(100000)</span></code>: el bus a 100 kHz, la velocidad estándar. Es más lenta que la rápida (400 kHz), pero <strong>más tolerante a cables largos y ruido</strong>, que en un robot con motores sobran.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setTimeOut(10)</span></code>: si el bus se traba, la lectura se rinde a los 10 ms en lugar de quedarse colgada.</p></li>
+</ul>
+<section id="recuperar-un-bus-trabado">
+<h3>Recuperar un bus trabado<a class="headerlink" href="#recuperar-un-bus-trabado" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Liberar el bus (main.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">sclPin</span><span class="p">,</span><span class="w"> </span><span class="n">LOW</span><span class="p">);</span>
+<span class="w">    </span><span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="n">digitalWrite</span><span class="p">(</span><span class="n">sclPin</span><span class="p">,</span><span class="w"> </span><span class="n">HIGH</span><span class="p">);</span>
+<span class="w">    </span><span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">digitalRead</span><span class="p">(</span><span class="n">sdaPin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HIGH</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"> </span><span class="c1">// SDA liberado</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Es normal que, si la ESP32 se reinicia <strong>justo a la mitad de una comunicación</strong>, un sensor se quede esperando y mantenga la línea de datos (SDA) en bajo, y entonces nadie vuelve a hablar por ese bus.
+La solución es mandar <strong>hasta 16 pulsos de reloj</strong> hasta que el sensor termine lo que estaba haciendo y suelte la línea. <code class="docutils literal notranslate"><span class="pre">recoverI2C()</span></code> se llama <strong>antes</strong> de iniciar los buses.</p>
+</section>
+</section>
+<section id="modos-de-prueba">
+<h2>Modos de prueba<a class="headerlink" href="#modos-de-prueba" title="Link to this heading"></a></h2>
+<p>El robot es un sistema donde todo depende de todo: si el robot no gira bien, no sabes si es el sensor, el PID o la máquina de estados. Por eso <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> tiene un <strong>modo de prueba</strong> que se elige
+con una sola línea y que prende <strong>solo una parte del robot</strong> a la vez:</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Selector de modo (main.cpp)</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// 1=color  2=openloop  3=tile PID  4=statemachine  5=MAZE  6=sensores</span>
+<span class="c1">// 7=LEVELS fase 1 (LIME-&gt;RED)  8=LEVELS fase 2 (RED-&gt;RED)  9=LEVELS fase 3 (RED-&gt;LIME)  10=LEVELS completo</span>
+<span class="cp">#define TEST_MODE 4</span>
+</pre></div>
+</div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12.0%" />
+<col style="width: 25.0%" />
+<col style="width: 63.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Modo</p></th>
+<th class="head"><p>Qué prueba</p></th>
+<th class="head"><p>Para qué sirve</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>Sensores (sin motores)</p></td>
+<td><p>Ver en vivo yaw, ToF, ultrasónicos, TCRT y color. <strong>El primer paso siempre.</strong> Los motores están apagados.</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Color</p></td>
+<td><p>Ver los valores <code class="docutils literal notranslate"><span class="pre">R</span></code>, <code class="docutils literal notranslate"><span class="pre">G</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code> y el color que detecta. Sirve para calibrar la tabla (ver <a class="reference internal" href="../Componentes/TCS34725.html"><span class="doc">Sensor de color TCS34725</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Lazo abierto</p></td>
+<td><p>Mover los motores <strong>a mano</strong> con comandos, sin PID. Sirve para revisar inversión de motores, encoders y PPR (ver <a class="reference internal" href="../Componentes/Constantes.html"><span class="doc">Constantes y pines</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>Una casilla con PID</p></td>
+<td><p>Avanza una casilla y reporta qué tanto se desvió. Sirve para <strong>tunear el PID</strong> (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>Máquina de estados</p></td>
+<td><p>El robot decide solo en cada casilla (ver <a class="reference internal" href="../MaquinaEstados/Introduccion.html"><span class="doc">Máquina de estados (StateMachine)</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>Maze</p></td>
+<td><p>El algoritmo completo del reto.</p></td>
+</tr>
+<tr class="row-even"><td><p>7 a 10</p></td>
+<td><p>Levels</p></td>
+<td><p>Cada sección del reto por separado, o las tres seguidas.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Los modos están ordenados <strong>de abajo hacia arriba</strong>, igual que las capas del código. Prueba en este orden: <strong>6, 1, 2, 3, 4, 5</strong>. No pases al siguiente hasta que el anterior funcione:
+si no puedes confiar en los sensores, el PID no se puede tunear, y si no puedes confiar en el PID, la máquina de estados no tiene sentido.</p>
+</div>
+<section id="los-modos-con-comandos">
+<h3>Los modos con comandos<a class="headerlink" href="#los-modos-con-comandos" title="Link to this heading"></a></h3>
+<p>Los modos 2, 3 y los de Levels se controlan <strong>por Serial o por Bluetooth</strong> (el robot se llama <code class="docutils literal notranslate"><span class="pre">RIBEYE</span></code>). Así se puede probar sin cable conectado al robot. Algunos comandos:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Modo</p></th>
+<th class="head"><p>Comando</p></th>
+<th class="head"><p>Efecto</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">m</span></code> / <code class="docutils literal notranslate"><span class="pre">b</span></code></p></td>
+<td><p>Avanzar / retroceder.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">l</span></code> / <code class="docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<td><p>Girar a la izquierda / derecha sobre su eje.</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">+</span></code> / <code class="docutils literal notranslate"><span class="pre">-</span></code></p></td>
+<td><p>Subir / bajar el PWM de 10 en 10.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2, 3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s</span></code></p></td>
+<td><p>Paro.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<td><p>Avanzar una casilla.</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">c</span></code></p></td>
+<td><p>Activar/desactivar el modo continuo (casilla tras casilla).</p></td>
+</tr>
+<tr class="row-even"><td><p>3, Levels</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">z</span></code></p></td>
+<td><p>Fijar el rumbo actual como el rumbo «recto».</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>En el modo 2 el robot se detiene solo a los 3 segundos de cualquier comando. Es un seguro para que, si se desconecta el Bluetooth, no se vaya corriendo.</p>
+</div>
+</section>
+</section>
+<section id="escaner-i2c">
+<h2>Escáner I2C<a class="headerlink" href="#escaner-i2c" title="Link to this heading"></a></h2>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Buscar dispositivos (main.cpp)</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">127</span><span class="p">;</span><span class="w"> </span><span class="n">a</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bus</span><span class="p">.</span><span class="n">beginTransmission</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bus</span><span class="p">.</span><span class="n">endTransmission</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Serial</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">" 0x%02X"</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Intenta hablar con <strong>todas las direcciones posibles</strong> y reporta las que contestan. Es lo primero que hay que hacer si un sensor «no aparece»: si no sale en el escaneo, el problema es de cableado o de dirección,
+no de código.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../Introduccion.html" class="btn btn-neutral float-left" title="Área de Programación" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../ComponentesProgra.html" class="btn btn-neutral float-right" title="Programación de componentes" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2026, Julian Ruben Rios Aquino.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

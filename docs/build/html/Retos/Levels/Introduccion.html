@@ -55,8 +55,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Retos de Candidates 2026</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../General/Introduccion.html">Reglas generales</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Maze/Introduccion.html">Maze</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Levels</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Levels</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#objetivo">Objetivo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#la-pelota">La pelota</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seccion-1-la-pelota-escondida">Sección 1: la pelota escondida</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seccion-2-las-lineas-blancas">Sección 2: las líneas blancas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seccion-3-el-camino-de-colores">Sección 3: el camino de colores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lack-of-progress-en-levels">Lack of progress en Levels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#puntuacion">Puntuación</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#como-lo-resolvemos">Cómo lo resolvemos</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -85,6 +96,188 @@
              
   <section id="reto-levels">
 <h1>Reto: Levels<a class="headerlink" href="#reto-levels" title="Link to this heading"></a></h1>
+<p><strong>Levels</strong> (Niveles) es la <strong>pista B</strong> de Candidates 2026. En vez de un solo laberinto, son <strong>tres secciones seguidas</strong>, cada una con una habilidad distinta: encontrar una pelota, no cruzar líneas blancas y seguir un camino marcado con colores. Las reglas compartidas con el Maze están en <a class="reference internal" href="../General/Introduccion.html"><span class="doc">Reglas generales</span></a>.</p>
+<section id="objetivo">
+<h2>Objetivo<a class="headerlink" href="#objetivo" title="Link to this heading"></a></h2>
+<p>El robot empieza en la casilla verde, cruza el <strong>checkpoint 1</strong> (fin de la sección 1), luego el <strong>checkpoint 2</strong> (fin de la sección 2) y termina en la <strong>casilla final</strong> de la sección 3. Si algo sale mal, el capitán puede declarar <em>lack of progress</em> y el robot reinicia desde el <strong>último checkpoint alcanzado</strong>.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/pista_b_mapa.png"><img alt="Mapa de la pista B" src="../../_images/pista_b_mapa.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Mapa de la pista B (ejemplo). El inicio, los checkpoints y los elementos de cada sección <strong>cambian en cada ronda</strong>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Lo ideal es <strong>llevar la pelota todo el recorrido</strong>: da puntos extra en cada checkpoint y el bonus final.</p>
+</div>
+</section>
+<section id="la-pelota">
+<h2>La pelota<a class="headerlink" href="#la-pelota" title="Link to this heading"></a></h2>
+<p>La pelota es una <strong>pelota de golf naranja de 42 ± 2 mm</strong> de diámetro.</p>
+<p><strong>Qué cuenta como «posesión»:</strong> la pelota debe estar <strong>más del 50% dentro del perímetro del robot</strong>.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/levels_s1_posesion.png"><img alt="Ejemplos de posesión de la pelota" src="../../_images/levels_s1_posesion.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Izquierda: posesión válida (más de la mitad de la pelota dentro del robot). Derecha: <strong>no</strong> cuenta como posesión.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Esta regla aplica <strong>en todas las secciones</strong>. Si el robot pierde la pelota, <strong>se queda donde se perdió</strong> y el robot puede ir a recuperarla; <strong>nunca regresa a su posición inicial</strong>.</p>
+</section>
+<section id="seccion-1-la-pelota-escondida">
+<h2>Sección 1: la pelota escondida<a class="headerlink" href="#seccion-1-la-pelota-escondida" title="Link to this heading"></a></h2>
+<p>La pelota está en el <strong>centro de una zona de 3 x 3 unidades</strong>. La unidad donde está tiene <strong>tres paredes</strong> y un solo lado libre, que es por donde el robot debe entrar. Una vez que la toma, debe <strong>llevarla hasta el checkpoint 1</strong>.</p>
+<p>Hay <strong>cuatro posibles acomodos</strong> de las paredes alrededor de la pelota, y cuál toca <strong>cambia por ronda</strong>.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/levels_s1_paredes.png"><img alt="Las cuatro posibilidades de paredes alrededor de la pelota" src="../../_images/levels_s1_paredes.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Los cuatro acomodos posibles de las paredes alrededor de la pelota.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Como no se sabe de antemano en qué lado está la entrada, <strong>hay que buscarla</strong>. Es un problema de exploración parecido al del Maze, solo que el objetivo es una pelota y no una casilla final.</p>
+</section>
+<section id="seccion-2-las-lineas-blancas">
+<h2>Sección 2: las líneas blancas<a class="headerlink" href="#seccion-2-las-lineas-blancas" title="Link to this heading"></a></h2>
+<p>Es una cuadrícula verde de <strong>2 x 4 unidades</strong> con <strong>líneas blancas de 2 ± 1 cm de ancho</strong> y largo variable. Están acomodadas de forma que <strong>siempre queda un hueco libre de 30 cm</strong> por donde el robot puede pasar sin tocarlas. Las líneas <strong>solo cambian de lugar en el eje horizontal</strong>.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../_images/levels_s2_lineas.png"><img alt="Ejemplo de líneas blancas en la sección 2" src="../../_images/levels_s2_lineas.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ejemplo de acomodo de las líneas blancas. Cada hueco libre mide 30 cm.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Pasar una línea blanca es un lack of progress</strong>, y el robot regresa al último checkpoint. Para el juez, se considera que cruzó la línea si <strong>más del 50% de una llanta</strong> del chasis pasó sobre ella.</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../../_images/levels_s2_cruce.png"><img alt="Casos en los que se considera que el robot cruzó la línea blanca" src="../../_images/levels_s2_cruce.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Casos para considerar que el robot pasó por la línea blanca.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Aquí <strong>cruzar sin ver la línea sale caro</strong>: se pierde el avance y se regresa al checkpoint. Un robot que va despacio y detecta la línea a tiempo gana más que uno rápido que la pisa.</p>
+</div>
+</section>
+<section id="seccion-3-el-camino-de-colores">
+<h2>Sección 3: el camino de colores<a class="headerlink" href="#seccion-3-el-camino-de-colores" title="Link to this heading"></a></h2>
+<p>El objetivo es llegar a la <strong>casilla final</strong> siguiendo <strong>solamente el camino que indican los colores</strong> de las unidades. Cada color significa una dirección:</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../_images/levels_s3_colores.png"><img alt="Significado de los colores de la sección 3" src="../../_images/levels_s3_colores.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Dirección que indica cada color: cian = derecha, amarillo = izquierda, naranja = arriba, magenta = abajo.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Color</p></th>
+<th class="head"><p>Dirección</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Cian</p></td>
+<td><p>Derecha</p></td>
+</tr>
+<tr class="row-odd"><td><p>Amarillo</p></td>
+<td><p>Izquierda</p></td>
+</tr>
+<tr class="row-even"><td><p>Naranja</p></td>
+<td><p>Arriba</p></td>
+</tr>
+<tr class="row-odd"><td><p>Magenta</p></td>
+<td><p>Abajo</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Las direcciones se dan <strong>respecto a la pista, no respecto al robot</strong>. «Arriba» es hacia donde está el checkpoint desde el que se entra a la sección, <strong>aunque el robot esté mirando hacia otro lado</strong>.</p>
+</div>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../../_images/levels_s3_ejemplo.png"><img alt="Ejemplo de acomodo de la sección 3" src="../../_images/levels_s3_ejemplo.png" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ejemplo de acomodo. Las flechas son solo ilustrativas y <strong>no</strong> vienen en la pista real.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>En ese ejemplo, la ruta sería <strong>adelante, adelante, derecha, abajo, derecha</strong>. La casilla final cambia de lugar en cada ronda, así que la única forma de llegar es seguir los colores. <strong>Salirse del camino</strong> (solo cuenta si el robot sale <strong>completamente</strong> de la unidad del camino) es un <em>lack of progress</em>.</p>
+</section>
+<section id="lack-of-progress-en-levels">
+<h2>Lack of progress en Levels<a class="headerlink" href="#lack-of-progress-en-levels" title="Link to this heading"></a></h2>
+<p>Además de las reglas generales, en esta pista aplican reglas especiales:</p>
+<ul class="simple">
+<li><p><strong>Tres lack of progress en la misma sección:</strong> en el cuarto, el robot puede empezar directamente en el <strong>checkpoint de la siguiente sección</strong>, pero <strong>sin puntos</strong> por ese checkpoint.</p></li>
+<li><p><strong>Sección 1:</strong> cada <em>lack of progress</em> <strong>devuelve la pelota a su posición inicial</strong>, escondida.</p></li>
+<li><p><strong>Secciones 2 y 3:</strong> cada <em>lack of progress</em> <strong>pone la pelota enfrente del robot</strong> (imagen de abajo).</p></li>
+<li><p><strong>Cuarto lack of progress en la sección 1 o 2</strong> (si quieren pasar al siguiente checkpoint): robot y pelota se colocan como en la imagen, pero en el siguiente checkpoint.</p></li>
+</ul>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../../_images/levels_perdida_pelota.png"><img alt="Posición de la pelota después de un lack of progress" src="../../_images/levels_perdida_pelota.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cómo se coloca la pelota enfrente del robot tras un <em>lack of progress</em>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="puntuacion">
+<h2>Puntuación<a class="headerlink" href="#puntuacion" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 70.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Acción</p></th>
+<th class="head"><p>Puntos</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tomar posesión de la pelota en la sección 1 y sacarla de su unidad</p></td>
+<td><p>15</p></td>
+</tr>
+<tr class="row-odd"><td><p>Llegar al checkpoint de la sección 1 <strong>sin</strong> posesión</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>Llegar al checkpoint de la sección 1 <strong>con</strong> posesión</p></td>
+<td><p>70</p></td>
+</tr>
+<tr class="row-odd"><td><p>Llegar al checkpoint de la sección 2 <strong>sin</strong> posesión</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>Llegar al checkpoint de la sección 2 <strong>con</strong> posesión</p></td>
+<td><p>70</p></td>
+</tr>
+<tr class="row-odd"><td><p>Llegar al checkpoint final (sección 3) <strong>sin</strong> posesión</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>BONUS:</strong> llegar al checkpoint final <strong>con</strong> posesión, sin soltarla de la garra en ningún momento</p></td>
+<td><p>85</p></td>
+</tr>
+</tbody>
+</table>
+<p>El máximo es de <strong>240 puntos</strong>: 15 (sacar la pelota) + 70 + 70 (checkpoints con pelota) + 85 (final con pelota).</p>
+<div class="admonition warning">
+<p class="admonition-title">Advertencia</p>
+<p>Llegar a un checkpoint <strong>sin</strong> pelota da casi la mitad de puntos. Perder la pelota en la sección 1 <strong>cuesta mucho más</strong> que perder tiempo recuperándola.</p>
+</div>
+</section>
+<section id="como-lo-resolvemos">
+<h2>Cómo lo resolvemos<a class="headerlink" href="#como-lo-resolvemos" title="Link to this heading"></a></h2>
+<p>Cada sección se resuelve con su propio comportamiento y todas comparten el mismo robot. La coordinación entre secciones la lleva una máquina de estados con los estados <code class="docutils literal notranslate"><span class="pre">WAITING</span></code>, <code class="docutils literal notranslate"><span class="pre">SECTION1</span></code>, <code class="docutils literal notranslate"><span class="pre">SECTION2</span></code>, <code class="docutils literal notranslate"><span class="pre">SECTION3</span></code>, <code class="docutils literal notranslate"><span class="pre">DONE</span></code> y <code class="docutils literal notranslate"><span class="pre">FAULT</span></code>.</p>
+<ul class="simple">
+<li><p><strong>Sección 1:</strong> reutiliza el motor de exploración del Maze (mapa, exploración y navegación por casillas) y le agrega los pasos para localizar la pelota y llevarla al checkpoint. La pelota entra por la <strong>parte trasera</strong> del robot, por eso el robot gira y avanza en reversa para tomarla. Ver <a class="reference internal" href="../../Areas/Programacion/MaquinaEstados/Introduccion.html"><span class="doc">Máquina de estados (StateMachine)</span></a>.</p></li>
+<li><p><strong>Sección 2:</strong> el robot recorre los carriles empezando por el central, y <strong>si ve una línea blanca con los sensores TCRT5000 retrocede</strong> y prueba el carril de la derecha y luego el de la izquierda. Ver <a class="reference internal" href="../../Areas/Programacion/Componentes/TCRT5000.html"><span class="doc">Sensor de línea (TCRT5000)</span></a>.</p></li>
+<li><p><strong>Sección 3:</strong> lee el color de cada unidad y gira hacia un <strong>rumbo global</strong> del giroscopio (no hacia «izquierda o derecha del robot»). Como las direcciones son respecto a la pista, el robot guarda el rumbo con el que empezó la sección y calcula los demás a partir de él. Ver <a class="reference internal" href="../../Areas/Programacion/Componentes/BNO055.html"><span class="doc">Unidad de Medicion Inercial (IMU) (BNO055)</span></a> y <a class="reference internal" href="../../Areas/Programacion/Componentes/TCS34725.html"><span class="doc">Sensor de color TCS34725</span></a>.</p></li>
+<li><p><strong>La pelota:</strong> el mecanismo que la toma y la mantiene está en <a class="reference internal" href="../../Areas/Mecanica/Mecanismos/Pelota.html"><span class="doc">Mecanismo para recoger la pelota</span></a>.</p></li>
+</ul>
+</section>
 </section>
 
 

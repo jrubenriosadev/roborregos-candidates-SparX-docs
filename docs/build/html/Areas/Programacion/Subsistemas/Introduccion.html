@@ -21,7 +21,7 @@
     <link rel="index" title="Índice" href="../../../genindex.html" />
     <link rel="search" title="Búsqueda" href="../../../search.html" />
     <link rel="next" title="Introducción a la resolución de maze" href="../Algoritmo/Planteamiento.html" />
-    <link rel="prev" title="Máquina de Estados (StateMachine)" href="../MaquinaEstados/Introduccion.html" /> 
+    <link rel="prev" title="Máquina de estados (StateMachine)" href="../MaquinaEstados/Introduccion.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,12 +52,23 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción a los subsistemas</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción a los subsistemas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dos-decisiones-de-diseno">Dos decisiones de diseño</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#avanzar-una-casilla-movetile">Avanzar una casilla (moveTile)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#girar-en-su-lugar-turntoangle">Girar en su lugar (turnToAngle)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#acercarse-a-la-pared-approachfront">Acercarse a la pared (approachFront)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reversa-recta-moveback">Reversa recta (moveBack)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lazo-abierto-setopenloop">Lazo abierto (setOpenLoop)</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
 </ul>
 </li>
@@ -99,13 +110,276 @@
              
   <section id="subsistemas-subsystems">
 <h1>Subsistemas (Subsystems)<a class="headerlink" href="#subsistemas-subsystems" title="Link to this heading"></a></h1>
+<p>La máquina de estados decide <strong>qué</strong> hacer («avanza una casilla», «gira 90°»), pero alguien tiene que saber <strong>cómo</strong> hacerlo: qué velocidad darle a cada motor, cuándo frenar, cómo corregir si se desvía.
+Ese trabajo es de un <strong>subsistema</strong>: una clase que agrupa los actuadores de una parte del robot junto con sus controladores, y ofrece <strong>acciones completas</strong> en lugar de comandos sueltos.</p>
+<p>En RIB-EYE el único subsistema de movimiento es el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> (<code class="docutils literal notranslate"><span class="pre">subsystems/drive</span></code>). Agrupa los dos motores (izquierdo y derecho) y los dos PID, y ofrece verbos como <code class="docutils literal notranslate"><span class="pre">moveTile</span></code> o <code class="docutils literal notranslate"><span class="pre">turnToAngle</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Aunque el robot tiene cuatro motores, el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> solo maneja <strong>dos</strong> (uno por lado). Los dos motores de cada lado se controlan con los mismos pines de la ESP32, por lo que se mueven siempre juntos
+(ver <a class="reference internal" href="../../Electronica/Componentes/Actuadores.html"><span class="doc">Motores y control de motores</span></a>).</p>
+</div>
+<section id="dos-decisiones-de-diseno">
+<h2>Dos decisiones de diseño<a class="headerlink" href="#dos-decisiones-de-diseno" title="Link to this heading"></a></h2>
+<section id="el-drive-no-conoce-los-sensores">
+<h3>1. El Drive no conoce los sensores<a class="headerlink" href="#el-drive-no-conoce-los-sensores" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Los sensores entran como parámetros (Drive.hpp)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">turnToAngle</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">current_yawDeg</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">moveTile</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">currentYaw</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">distLeft</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">distRight</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">140.0f</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>El <code class="docutils literal notranslate"><span class="pre">Drive</span></code> <strong>no tiene un BNO055 ni un ultrasónico adentro</strong>: quien lo usa le <strong>pasa</strong> el yaw y las distancias en cada llamada. Esto es posible gracias al contenedor (ver <a class="reference internal" href="../Contenedor/Introduccion.html"><span class="doc">Contenedor (RobotContainer)</span></a>),
+que es el dueño de los sensores. La ventaja es que el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> solo se ocupa de <strong>mover</strong>, y se puede probar con cualquier fuente de lecturas.</p>
+</section>
+<section id="preparar-y-ejecutar-prep-step">
+<h3>2. Preparar y ejecutar (prep / step)<a class="headerlink" href="#preparar-y-ejecutar-prep-step" title="Link to this heading"></a></h3>
+<p>Casi todos los movimientos vienen en <strong>pares</strong>:</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Patrón prep/step (Drive.hpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">prepMoveTile</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">targetDistanceMeters</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">targetYawDeg</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">moveTile</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">currentYaw</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">distLeft</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">distRight</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">140.0f</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">prepX(...)</span></code> se llama <strong>una vez</strong>, al empezar el movimiento: fija el objetivo, pone en cero los encoders y <strong>reinicia los PID</strong>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">X(...)</span></code> se llama <strong>en cada ciclo</strong> y devuelve <code class="docutils literal notranslate"><span class="pre">true</span></code> cuando el movimiento <strong>terminó</strong>.</p></li>
+</ul>
+<p>Es el patrón de la máquina de estados (ver <a class="reference internal" href="../MaquinaEstados/Introduccion.html"><span class="doc">Máquina de estados (StateMachine)</span></a>) llevado al movimiento: <strong>nunca bloquea</strong>. La máquina de estados llama a <code class="docutils literal notranslate"><span class="pre">moveTile</span></code> en cada vuelta y pasa al siguiente estado cuando devuelve <code class="docutils literal notranslate"><span class="pre">true</span></code>.
+El <code class="docutils literal notranslate"><span class="pre">prep</span></code> es importante porque <strong>reinicia</strong> los PID: si no, la integral y la derivada del movimiento anterior contaminan el nuevo (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p>
+</section>
+</section>
+<section id="avanzar-una-casilla-movetile">
+<h2>Avanzar una casilla (moveTile)<a class="headerlink" href="#avanzar-una-casilla-movetile" title="Link to this heading"></a></h2>
+<p>Este es el movimiento más complejo. Lo vamos construyendo en capas, de la más básica a la más fina.</p>
+<section id="capa-1-saber-cuanto-falta">
+<h3>Capa 1: saber cuánto falta<a class="headerlink" href="#capa-1-saber-cuanto-falta" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Distancia restante (Drive.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_rightMotor</span><span class="p">.</span><span class="n">getDistanceMeters</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kRScale</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">remaining</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_targetDistance</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5f</span><span class="p">;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">remaining</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kStopTol</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>La distancia viene de los <strong>encoders</strong> (cuántas vueltas dio la rueda por su diámetro). Se compara con el objetivo (una casilla, <code class="docutils literal notranslate"><span class="pre">kTSize</span> <span class="pre">=</span> <span class="pre">0.30</span></code> m) y se <strong>detiene un poco antes</strong> de llegar (<code class="docutils literal notranslate"><span class="pre">kStopTol</span> <span class="pre">=</span> <span class="pre">0.03</span></code> m):
+los motores no frenan de golpe, así que si se mandara el paro justo en 30 cm, el robot <strong>se pasaría</strong>. Si el robot se queda corto o se pasa de la casilla, este es el valor a ajustar.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p><strong>Estado actual del código:</strong> la distancia se toma solo del encoder <strong>derecho</strong> (<code class="docutils literal notranslate"><span class="pre">l</span> <span class="pre">=</span> <span class="pre">r</span></code>). El izquierdo está comentado. Por eso la corrección por diferencia de encoders (capa 4) hoy da siempre 0.
+El rumbo recto lo logra el BNO055.</p>
+</div>
+</section>
+<section id="capa-2-frenar-antes-de-llegar">
+<h3>Capa 2: frenar antes de llegar<a class="headerlink" href="#capa-2-frenar-antes-de-llegar" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Desacelerar al final (Drive.cpp)</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">baseSpeed</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">remaining</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSlow</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fmaxf</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kMinOutput</span><span class="p">,</span><span class="w"> </span><span class="n">baseSpeed</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">remaining</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSlow</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Los últimos 15 cm (<code class="docutils literal notranslate"><span class="pre">kSlow</span></code>) el robot <strong>baja la velocidad</strong> de forma proporcional a lo que le falta, para llegar más despacio y frenar con precisión. Pero <strong>nunca baja de</strong> <code class="docutils literal notranslate"><span class="pre">kMinOutput</span></code> (110):
+por debajo de ese PWM los motores <strong>no se mueven</strong> (zona muerta), y el robot se quedaría parado antes de llegar.</p>
+</section>
+<section id="capa-3-ir-recto-con-el-bno055">
+<h3>Capa 3: ir recto con el BNO055<a class="headerlink" href="#capa-3-ir-recto-con-el-bno055" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Corrección por yaw (Drive.cpp)</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">imuOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_steerPID</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">yawRad</span><span class="p">,</span><span class="w"> </span><span class="n">_targetYaw</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wallOffset</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">imuSteer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kImu</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">imuOut</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Aquí entra el PID de rumbo (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>): compara el yaw con el <strong>rumbo objetivo</strong> y devuelve una corrección. El <code class="docutils literal notranslate"><span class="pre">wallOffset</span></code> es una pequeña desviación del objetivo que viene de los ultrasónicos (capa 5);
+si no hay corrección por pared, vale 0.</p>
+</section>
+<section id="capa-4-que-las-dos-ruedas-vayan-igual">
+<h3>Capa 4: que las dos ruedas vayan igual<a class="headerlink" href="#capa-4-que-las-dos-ruedas-vayan-igual" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Corrección por encoders (Drive.cpp)</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">encSteer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kEnc</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kEncKp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">r</span><span class="p">))</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Si una rueda recorre más que la otra, el robot se está curveando. Esta corrección es <strong>proporcional a la diferencia</strong> de lo que recorrió cada rueda. Cuando se tienen los dos encoders conectados, ayuda a ir recto
+<strong>incluso si el BNO055 tarda en notar la desviación</strong>.</p>
+</section>
+<section id="capa-5-no-chocar-con-las-paredes">
+<h3>Capa 5: no chocar con las paredes<a class="headerlink" href="#capa-5-no-chocar-con-las-paredes" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">Corrección por pared (Drive.cpp)</span><a class="headerlink" href="#id7" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">okL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">okR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">distRight</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">distLeft</span><span class="p">;</span>
+<span class="w">    </span><span class="n">wall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">okL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kUTarget</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">distLeft</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">okR</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">distRight</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kUTarget</span><span class="p">);</span>
+<span class="w">    </span><span class="n">wall</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Con las paredes a los lados, los ultrasónicos pueden decirnos <strong>si el robot se está pegando a un lado</strong>:</p>
+<ul class="simple">
+<li><p>Con <strong>dos paredes</strong>, el objetivo es estar centrado (la diferencia entre las dos distancias debe ser 0).</p></li>
+<li><p>Con <strong>una sola</strong>, el objetivo es mantener una distancia fija (<code class="docutils literal notranslate"><span class="pre">kUTarget</span></code>, 9 cm) a esa pared. Se multiplica por 2 para que la corrección tenga la misma escala que con dos paredes.</p></li>
+</ul>
+<p>En lugar de mandar esto directo a los motores, el error de pared se convierte en un <strong>pequeño desvío del rumbo objetivo</strong> (<code class="docutils literal notranslate"><span class="pre">wallOffset</span></code>, de 5° como máximo) y el PID de yaw hace el resto. Esto es más seguro que
+dos controladores peleándose por los mismos motores: <strong>solo uno manda</strong> (el de yaw) y la pared solo le «mueve la meta».</p>
+<p>Antes de usar una lectura, se protege:</p>
+<ul class="simple">
+<li><p>Solo se usa si la lectura es <strong>válida y cercana</strong> (<code class="docutils literal notranslate"><span class="pre">kUMax</span></code>, 14 cm).</p></li>
+<li><p>Solo se usa si el robot <strong>ya va casi derecho</strong> (<code class="docutils literal notranslate"><span class="pre">kUMaxYawErrDeg</span></code>, 15°). Con el robot muy torcido, la pared «se ve» distinta y la lectura engañaría al controlador.</p></li>
+<li><p>Se <strong>filtra</strong> (<code class="docutils literal notranslate"><span class="pre">kUFilterA</span></code>) y se ignora un error pequeño (<code class="docutils literal notranslate"><span class="pre">kUDeadband</span></code>, <strong>zona muerta</strong> de 1 cm) para no andar zigzagueando por nada.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p><strong>Estado actual del código:</strong> la corrección por pared está <strong>apagada</strong> con <code class="docutils literal notranslate"><span class="pre">kUltra</span> <span class="pre">=</span> <span class="pre">false</span></code> en <code class="docutils literal notranslate"><span class="pre">driveConfig.h</span></code>. Para probarla, cámbiala a <code class="docutils literal notranslate"><span class="pre">true</span></code> y tunea (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p>
+</div>
+</section>
+<section id="capa-6-mezclar-y-mandar-a-los-motores">
+<h3>Capa 6: mezclar y mandar a los motores<a class="headerlink" href="#capa-6-mezclar-y-mandar-a-los-motores" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">La mezcla final (Drive.cpp)</span><a class="headerlink" href="#id8" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">totalSteer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">(</span><span class="n">encSteer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">imuSteer</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kMaxSteer</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kMaxSteer</span><span class="p">);</span>
+
+<span class="n">setOpenLoop</span><span class="p">(</span><span class="n">constrain</span><span class="p">((</span><span class="kt">int</span><span class="p">)(</span><span class="n">speed</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">totalSteer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kTrim</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="n">constrain</span><span class="p">((</span><span class="kt">int</span><span class="p">)(</span><span class="n">speed</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">totalSteer</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<p>Las correcciones se <strong>suman</strong> y se limitan a <code class="docutils literal notranslate"><span class="pre">kMaxSteer</span></code> (para que ninguna corrección exagerada deje a un motor casi parado). La velocidad base se <strong>suma a un motor y se resta al otro</strong>:
+si el robot se va a la izquierda, el motor izquierdo acelera y el derecho frena, y el robot se endereza.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kTrim</span></code> es una constante que se <strong>suma siempre al motor izquierdo</strong>. Compensa que un motor sea un poco más fuerte que el otro, para que «recto» no empiece ya chueco.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kBSpeed</span></code> (140) es la velocidad base. A más velocidad, el robot es más rápido pero <strong>más difícil de controlar</strong>.</p></li>
+</ul>
+</section>
+<section id="como-ajustar-movetile">
+<h3>Cómo ajustar moveTile<a class="headerlink" href="#como-ajustar-movetile" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Lo que ves</p></th>
+<th class="head"><p>Qué ajustar</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Se pasa de la casilla</p></td>
+<td><p>Subir <code class="docutils literal notranslate"><span class="pre">kStopTol</span></code> (frena antes) o bajar <code class="docutils literal notranslate"><span class="pre">kBSpeed</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Se queda corto</p></td>
+<td><p>Bajar <code class="docutils literal notranslate"><span class="pre">kStopTol</span></code> o revisar el diámetro de la rueda (ver <a class="reference internal" href="../Componentes/Constantes.html"><span class="doc">Constantes y pines</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>Se frena y no llega</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kMinOutput</span></code> está por debajo de la zona muerta: súbelo.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Siempre se va hacia un lado</p></td>
+<td><p>Ajustar <code class="docutils literal notranslate"><span class="pre">kTrim</span></code> y revisar <code class="docutils literal notranslate"><span class="pre">kYawKp</span></code> (ver <a class="reference internal" href="../PID/IntroduccionPID.html"><span class="doc">Introducción a PID</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>Hace zigzag</p></td>
+<td><p>Bajar <code class="docutils literal notranslate"><span class="pre">kYawKp</span></code> o subir <code class="docutils literal notranslate"><span class="pre">kYawKd</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="girar-en-su-lugar-turntoangle">
+<h2>Girar en su lugar (turnToAngle)<a class="headerlink" href="#girar-en-su-lugar-turntoangle" title="Link to this heading"></a></h2>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Giro con PID (Drive.cpp)</span><a class="headerlink" href="#id9" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerMax</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerMax</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fabsf</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerMin</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">copysignf</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerMin</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">setOpenLoop</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">cmd</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">-</span><span class="n">cmd</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>El giro usa el otro PID (<code class="docutils literal notranslate"><span class="pre">_turnPID</span></code>). Lo interesante está en la última línea: <code class="docutils literal notranslate"><span class="pre">cmd</span></code> y <code class="docutils literal notranslate"><span class="pre">-cmd</span></code>. Un motor avanza y el otro retrocede <strong>con la misma fuerza</strong>, así que el robot <strong>gira sobre su propio centro</strong>.
+Esto es justo lo que pidió programación y lo que motivó el rediseño del chasis (ver <a class="reference internal" href="../../Mecanica/Evolucion/Version3.html"><span class="doc">Versión 3</span></a>).</p>
+<p>Como ya se vio, la salida se <strong>limita por abajo</strong> (<code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code>) para que nunca caiga en la zona muerta del motor.</p>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text">Cuándo se da por terminado (Drive.cpp)</span><a class="headerlink" href="#id10" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">errDeg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerTol</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">++</span><span class="n">_settleCount</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerST</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_settleCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">_settleCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>No basta con <strong>tocar</strong> el ángulo objetivo: el robot puede llegar, pasarse un poco y volver. Por eso se exige estar <strong>dentro de la tolerancia</strong> (<code class="docutils literal notranslate"><span class="pre">kSteerTol</span></code>, 2.5°) durante varios ciclos seguidos (<code class="docutils literal notranslate"><span class="pre">kSteerST</span></code>, 5 ciclos = 100 ms)
+antes de declarar que el giro terminó. Si en algún momento sale de la tolerancia, el contador se reinicia.</p>
+</section>
+<section id="acercarse-a-la-pared-approachfront">
+<h2>Acercarse a la pared (approachFront)<a class="headerlink" href="#acercarse-a-la-pared-approachfront" title="Link to this heading"></a></h2>
+<p>Antes de un giro real, si hay una pared enfrente dentro de la casilla, el robot <strong>se acerca a ella</strong> hasta quedar a <code class="docutils literal notranslate"><span class="pre">kTurnDist</span></code> (55 mm) para que el giro empiece <strong>siempre desde el mismo punto</strong>, centrado en la casilla.</p>
+<p>Lo curioso es <strong>cómo</strong> se acerca: por <strong>pulsos</strong> y no de forma continua.</p>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text">Acercamiento pulsado (Drive.cpp)</span><a class="headerlink" href="#id11" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mm</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kTurnDist</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fabsf</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachTolMm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">stop</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachPwm</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachPwm</span><span class="p">;</span>
+<span class="n">_apprPulse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">((</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)(</span><span class="n">fabsf</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachMsPerMm</span><span class="p">),</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachPulseMinMs</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kApproachPulseMaxMs</span><span class="p">);</span>
+<span class="n">setOpenLoop</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="n">_apprDriving</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Se avanza (o retrocede) <strong>un pulso corto</strong>, se <strong>detiene</strong>, se <strong>espera</strong> una lectura fresca del ToF y se repite. Hay dos razones:</p>
+<ol class="arabic simple">
+<li><p><strong>Un PWM bajo no mueve los motores</strong> (zona muerta). Las primeras pruebas con PWM de 20 no hacían nada, así que se usa un PWM suficiente (<code class="docutils literal notranslate"><span class="pre">kApproachPwm</span></code>, 110) pero <strong>por poco tiempo</strong>.</p></li>
+<li><p><strong>El ToF tarda ~33 ms</strong> en dar una lectura nueva (ver <a class="reference internal" href="../Componentes/VL53L0X.html"><span class="doc">Sensor laser (VL53L0X)</span></a>). Si el robot avanza sin parar, mide una distancia vieja y se pasa. La pausa (<code class="docutils literal notranslate"><span class="pre">kApproachPauseMs</span></code>, 120 ms) asegura lecturas frescas.</p></li>
+</ol>
+<p>La duración de cada pulso es <strong>proporcional al error</strong> (<code class="docutils literal notranslate"><span class="pre">kApproachMsPerMm</span></code>, 3 ms por milímetro), limitada entre 30 y 150 ms. Cuanto más lejos está, más largo el pulso.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Si el robot <strong>se pasa</strong> al acercarse, baja <code class="docutils literal notranslate"><span class="pre">kApproachMsPerMm</span></code>. Si <strong>se queda corto</strong> y tarda mucho, súbelo. Si nunca se acerca, revisa que <code class="docutils literal notranslate"><span class="pre">kApproachPwm</span></code> supere la zona muerta.</p>
+</div>
+<p>El acercamiento tiene <strong>tres salidas</strong> para no quedarse atorado: llegar a la distancia (con <code class="docutils literal notranslate"><span class="pre">kApproachTolMm</span></code> de tolerancia, 8 mm), que la pared esté demasiado lejos para ser de esta casilla (<code class="docutils literal notranslate"><span class="pre">kApproachMaxMm</span></code>, 120 mm),
+o un tiempo límite (<code class="docutils literal notranslate"><span class="pre">kApproachMillis</span></code>, 2.5 s).</p>
+</section>
+<section id="reversa-recta-moveback">
+<h2>Reversa recta (moveBack)<a class="headerlink" href="#reversa-recta-moveback" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">moveBack</span></code> es la versión en reversa de <code class="docutils literal notranslate"><span class="pre">moveTile</span></code>: mantiene el rumbo con el PID de yaw mientras retrocede cierta distancia. Se usa en el reto Levels (retroceder al ver una línea blanca y entrar de reversa por la pelota).
+Es más sencilla porque <strong>no desacelera</strong> y no usa corrección por pared.</p>
+</section>
+<section id="lazo-abierto-setopenloop">
+<h2>Lazo abierto (setOpenLoop)<a class="headerlink" href="#lazo-abierto-setopenloop" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">setOpenLoop(izq,</span> <span class="pre">der)</span></code> manda un PWM directo a cada motor, <strong>sin ningún controlador</strong>. Se usa en el modo de prueba 2 y dentro de los demás movimientos como la última línea que realmente mueve los motores.
+Es la única función de <code class="docutils literal notranslate"><span class="pre">Drive</span></code> que escribe a los motores; todo lo demás calcula <strong>qué</strong> PWM mandar.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="../MaquinaEstados/Introduccion.html" class="btn btn-neutral float-left" title="Máquina de Estados (StateMachine)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../MaquinaEstados/Introduccion.html" class="btn btn-neutral float-left" title="Máquina de estados (StateMachine)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
         <a href="../Algoritmo/Planteamiento.html" class="btn btn-neutral float-right" title="Introducción a la resolución de maze" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

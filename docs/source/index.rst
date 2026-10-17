@@ -13,9 +13,9 @@ En este apartado encontrarás información de los retos, y todo lo que necesites
 
 
 .. toctree::
-   :caption: Conoce a Rib Eye
+   :caption: Trabajo en equipo
 
-   RIB-EYE<RibEye/Rib-eye>
+   Colaboración <RibEye/Rib-eye>
 
 .. toctree::
    :caption: Áreas de SparX
@@ -29,9 +29,9 @@ En este apartado encontrarás información de los retos, y todo lo que necesites
    :caption: Retos de Candidates 2026
    :maxdepth: 1
    
+   Reglas generales <Retos/General/Introduccion>
    Maze <Retos/Maze/Introduccion>
    Levels <Retos/Levels/Introduccion>
-
 
 Créditos de la documentación
 *****************************

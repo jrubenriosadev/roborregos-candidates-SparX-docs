@@ -20,7 +20,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="../../../genindex.html" />
     <link rel="search" title="Búsqueda" href="../../../search.html" />
-    <link rel="next" title="Máquina de Estados (StateMachine)" href="../MaquinaEstados/Introduccion.html" />
+    <link rel="next" title="Máquina de estados (StateMachine)" href="../MaquinaEstados/Introduccion.html" />
     <link rel="prev" title="Introducción a PID" href="../PID/IntroduccionPID.html" /> 
 </head>
 
@@ -52,10 +52,19 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../PID/IntroduccionPID.html">Introducción</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción al contenedor (RobotContainer)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#construyendolo">Construyéndolo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preguntas-no-numeros">Preguntas, no números</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#el-color">El color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cuando-agregar-algo-al-contenedor">Cuándo agregar algo al contenedor</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
@@ -99,6 +108,174 @@
              
   <section id="contenedor-robotcontainer">
 <h1>Contenedor (RobotContainer)<a class="headerlink" href="#contenedor-robotcontainer" title="Link to this heading"></a></h1>
+<p>Imagina que cada parte del código que necesita un sensor lo crea por su cuenta: la máquina de estados crea su BNO055, el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> crea otro, el maze crea otro más. Muy pronto tendrías
+<strong>tres objetos hablando con el mismo sensor</strong>, peleándose por el bus I2C y dando lecturas distintas. Y si cambias un pin, tendrías que buscarlo en todos lados.</p>
+<p>El <code class="docutils literal notranslate"><span class="pre">RobotContainer</span></code> resuelve esto con una idea simple: <strong>un solo dueño de todo el hardware</strong>. Es una clase que:</p>
+<ol class="arabic simple">
+<li><p><strong>Crea</strong> todos los sensores y el <code class="docutils literal notranslate"><span class="pre">Drive</span></code> <strong>una sola vez</strong>.</p></li>
+<li><p>Los <strong>inicializa</strong> en el orden correcto (<code class="docutils literal notranslate"><span class="pre">init()</span></code>).</p></li>
+<li><p>Los <strong>actualiza</strong> en cada ciclo (<code class="docutils literal notranslate"><span class="pre">update()</span></code>).</p></li>
+<li><p>Le da al resto del código <strong>lecturas con sentido</strong>, no datos crudos («hay pared al frente», no «el ToF dice 87»).</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>El resto del programa (máquina de estados, maze, levels) <strong>recibe una referencia al contenedor</strong> y le pide cosas. Nunca crea sensores propios. Esto se llama <em>inyección de dependencias</em>,
+y la ventaja es que si mañana cambias un sensor, solo tocas el contenedor.</p>
+</div>
+<section id="construyendolo">
+<h2>Construyéndolo<a class="headerlink" href="#construyendolo" title="Link to this heading"></a></h2>
+<section id="dueno-de-todo">
+<h3>1. Dueño de todo<a class="headerlink" href="#dueno-de-todo" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Quién vive en el contenedor (RobotContainer.hpp)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="n">Drive</span><span class="w"> </span><span class="n">_drive</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Bno</span><span class="w"> </span><span class="n">_bno</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ColorSensor</span><span class="w"> </span><span class="n">_tcs</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ColorDetected</span><span class="w"> </span><span class="n">_lastColor</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Ultrasonic</span><span class="w"> </span><span class="n">_leftUltra</span><span class="p">,</span><span class="w"> </span><span class="n">_rightUltra</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ToF</span><span class="w"> </span><span class="n">_tofL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">LineSensor</span><span class="w"> </span><span class="n">_lineL</span><span class="p">,</span><span class="w"> </span><span class="n">_lineR</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>El contenedor <strong>tiene</strong> a todos los componentes como atributos privados. Quien lo use no puede tocarlos directamente: solo pide lo que necesita a través de métodos como <code class="docutils literal notranslate"><span class="pre">getBno()</span></code> o <code class="docutils literal notranslate"><span class="pre">frontWall()</span></code>.</p>
+</section>
+<section id="el-cableado-vive-en-el-constructor">
+<h3>2. El cableado vive en el constructor<a class="headerlink" href="#el-cableado-vive-en-el-constructor" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Conectar cada componente a sus pines (RobotContainer.cpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">_leftUltra</span><span class="p">(</span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">kLeftEcho</span><span class="p">,</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">kLeftTrigger</span><span class="p">,</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">maxRange</span><span class="p">),</span>
+<span class="n">_rightUltra</span><span class="p">(</span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">kRightEcho</span><span class="p">,</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">kRightTrigger</span><span class="p">,</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">maxRange</span><span class="p">),</span>
+<span class="n">_tofL</span><span class="p">(</span><span class="n">Pins</span><span class="o">::</span><span class="n">ToF</span><span class="o">::</span><span class="n">kLeftXShut</span><span class="p">,</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">ToF</span><span class="o">::</span><span class="n">kLeftAddr</span><span class="p">),</span>
+</pre></div>
+</div>
+</div>
+<p>Los pines vienen de <code class="docutils literal notranslate"><span class="pre">pinsConfig.h</span></code> (ver <a class="reference internal" href="../Componentes/Constantes.html"><span class="doc">Constantes y pines</span></a>). El contenedor es <strong>el único lugar donde se juntan</strong> un componente y su pin.</p>
+</section>
+<section id="inicializar-en-orden">
+<h3>3. Inicializar en orden<a class="headerlink" href="#inicializar-en-orden" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Arranque (RobotContainer.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">_tofL</span><span class="p">.</span><span class="n">powerOff</span><span class="p">();</span>
+<span class="n">delay</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">attempt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">attempt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_tofL</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="n">Wire1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Sin esto el primer update() intentaba "ponerse al dia" con millis() leyendo los ultrasonicos seguidos (diafonia)</span>
+<span class="n">_lastUltraToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<p>El <code class="docutils literal notranslate"><span class="pre">init()</span></code> hace cosas que <strong>dependen del orden</strong>:</p>
+<ul class="simple">
+<li><p>El ToF se apaga primero y luego se inicia con <strong>reintentos</strong>, porque a veces no responde a la primera (ver <a class="reference internal" href="../Componentes/VL53L0X.html"><span class="doc">Sensor laser (VL53L0X)</span></a>).</p></li>
+<li><p>Si un sensor falla al iniciar, <strong>el programa no se cae</strong>: cada componente recuerda si está listo (<code class="docutils literal notranslate"><span class="pre">isUp()</span></code>) y el resto del código decide qué hacer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_lastUltraToggle</span></code> se reinicia al final: ver más abajo por qué importa.</p></li>
+</ul>
+</section>
+<section id="actualizar-todo-en-cada-ciclo">
+<h3>4. Actualizar todo en cada ciclo<a class="headerlink" href="#actualizar-todo-en-cada-ciclo" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Actualización (RobotContainer.cpp)</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">RobotContainer::update</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_bno</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="w">    </span><span class="n">_tofL</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="w">    </span><span class="n">_lineL</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="w">    </span><span class="n">_lineR</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">update()</span></code> se llama <strong>una vez por ciclo</strong> desde <code class="docutils literal notranslate"><span class="pre">main</span></code> (ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>), antes de cualquier lógica. Así, cuando la máquina de estados pregunta «¿hay pared?», la respuesta está fresca.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Fíjate que <code class="docutils literal notranslate"><span class="pre">_tcs</span></code> y los ultrasónicos <strong>no</strong> aparecen aquí. El de color se lee solo cuando alguien lo pide (<code class="docutils literal notranslate"><span class="pre">getColorDetected()</span></code>) y los ultrasónicos tienen su propio ritmo, que vemos ahora.</p>
+</div>
+</section>
+<section id="ultrasonicos-por-turnos">
+<h3>5. Ultrasónicos por turnos<a class="headerlink" href="#ultrasonicos-por-turnos" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Un ultrasónico a la vez (RobotContainer.cpp)</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">_lastUltraToggle</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_lastUltraToggle</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">40</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_readToggle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_leftUltra</span><span class="p">.</span><span class="n">readDistance</span><span class="p">();</span>
+<span class="w">        </span><span class="n">_leftFilter</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">_leftUltra</span><span class="p">.</span><span class="n">isValid</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_rightUltra</span><span class="p">.</span><span class="n">readDistance</span><span class="p">();</span>
+<span class="w">        </span><span class="n">_rightFilter</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">_rightUltra</span><span class="p">.</span><span class="n">isValid</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">_readToggle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">_readToggle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Esto resuelve <strong>tres problemas</strong> con unas cuantas líneas:</p>
+<ol class="arabic simple">
+<li><p><strong>Diafonía:</strong> nunca se leen los dos a la vez (<code class="docutils literal notranslate"><span class="pre">_readToggle</span></code> va alternando), así que uno no escucha el eco del otro.</p></li>
+<li><p><strong>Ritmo constante:</strong> se suma <code class="docutils literal notranslate"><span class="pre">+=</span> <span class="pre">40</span></code> en lugar de asignar <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">millis()</span></code>, para que el ritmo promedio sea siempre de una lectura cada 40 ms. La contrapartida es que, si el programa se atrasa mucho, intentaría ponerse al corriente leyendo seguidos (otra vez diafonía). Por eso en <code class="docutils literal notranslate"><span class="pre">init()</span></code> se reinicia <code class="docutils literal notranslate"><span class="pre">_lastUltraToggle</span></code>.</p></li>
+<li><p><strong>Limpieza:</strong> cada lectura pasa por su <code class="docutils literal notranslate"><span class="pre">WallFilter</span></code> (ver <a class="reference internal" href="../Componentes/HC-SR04.html"><span class="doc">Sensor Ultrasónico (HC-SR04)</span></a>) antes de que nadie la use.</p></li>
+</ol>
+<p>Cada ultrasónico se lee entonces cada 80 ms.</p>
+</section>
+</section>
+<section id="preguntas-no-numeros">
+<h2>Preguntas, no números<a class="headerlink" href="#preguntas-no-numeros" title="Link to this heading"></a></h2>
+<p>La parte más valiosa del contenedor son los métodos que <strong>convierten lecturas en decisiones</strong>:</p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Paredes (RobotContainer.cpp)</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">RobotContainer::frontWall</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tofReady</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_tofL</span><span class="p">.</span><span class="n">getDistance</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">DriveConfig</span><span class="o">::</span><span class="n">kFWallmm</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">RobotContainer::leftWall</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">getLeftDistance</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">DriveConfig</span><span class="o">::</span><span class="n">kSWallcm</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Cuando la máquina de estados pregunta <code class="docutils literal notranslate"><span class="pre">frontWall()</span></code> no le importa si la respuesta viene de un ToF, de un ultrasónico o de una cámara. Si mañana cambiamos el sensor, <strong>ese código no cambia</strong>.</p>
+<p>Y fíjate en la <strong>primera línea</strong> de <code class="docutils literal notranslate"><span class="pre">frontWall()</span></code>: si el ToF no está listo, responde «sí hay pared». Es un <strong>valor por defecto seguro</strong>: ante la duda, el robot prefiere detenerse que avanzar a ciegas.</p>
+<p>El mismo criterio se aplica a los ultrasónicos:</p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">Sin lectura válida (RobotContainer.cpp)</span><a class="headerlink" href="#id7" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="nf">RobotContainer::getLeftDistance</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_leftFilter</span><span class="p">.</span><span class="n">valid</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">_leftFilter</span><span class="p">.</span><span class="n">value</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Pins</span><span class="o">::</span><span class="n">Ultrasonic</span><span class="o">::</span><span class="n">maxRange</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Si el filtro no tiene datos buenos, regresa el rango máximo, que equivale a «no veo nada cerca» (ver <a class="reference internal" href="../Componentes/HC-SR04.html"><span class="doc">Sensor Ultrasónico (HC-SR04)</span></a>).</p>
+</section>
+<section id="el-color">
+<h2>El color<a class="headerlink" href="#el-color" title="Link to this heading"></a></h2>
+<p>El contenedor también convierte el RGB del sensor en un <strong>nombre de color</strong> (<code class="docutils literal notranslate"><span class="pre">ColorDetected</span></code>) comparándolo con una tabla de referencia. Cómo funciona y cómo calibrarla está en <a class="reference internal" href="../Componentes/TCS34725.html"><span class="doc">Sensor de color TCS34725</span></a>.</p>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">Pedir el color (RobotContainer.cpp)</span><a class="headerlink" href="#id8" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">ColorDetected</span><span class="w"> </span><span class="nf">RobotContainer::getColorDetected</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">RGB</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_tcs</span><span class="p">.</span><span class="n">readAsync</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">_lastRGB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Observa que <code class="docutils literal notranslate"><span class="pre">getColorDetected()</span></code> <strong>lee el sensor solo si ya toca</strong> (cada 100 ms) y, mientras tanto, regresa <strong>el último color conocido</strong>. Quien lo llama puede hacerlo en cada ciclo sin preocuparse.</p>
+</section>
+<section id="cuando-agregar-algo-al-contenedor">
+<h2>Cuándo agregar algo al contenedor<a class="headerlink" href="#cuando-agregar-algo-al-contenedor" title="Link to this heading"></a></h2>
+<p>Una buena regla para decidir si algo va en el contenedor:</p>
+<ul class="simple">
+<li><p><strong>Sí:</strong> es un sensor o actuador, o una pregunta sobre el entorno (»¿hay pared a la izquierda?»).</p></li>
+<li><p><strong>No:</strong> es una decisión del robot («gira a la derecha»). Eso es de la máquina de estados (ver <a class="reference internal" href="../MaquinaEstados/Introduccion.html"><span class="doc">Máquina de estados (StateMachine)</span></a>).</p></li>
+</ul>
+<p>Si el contenedor empieza a <strong>decidir</strong> cosas, se vuelve imposible de reusar entre retos.</p>
+</section>
 </section>
 
 
@@ -106,7 +283,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
         <a href="../PID/IntroduccionPID.html" class="btn btn-neutral float-left" title="Introducción a PID" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="../MaquinaEstados/Introduccion.html" class="btn btn-neutral float-right" title="Máquina de Estados (StateMachine)" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../MaquinaEstados/Introduccion.html" class="btn btn-neutral float-right" title="Máquina de estados (StateMachine)" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

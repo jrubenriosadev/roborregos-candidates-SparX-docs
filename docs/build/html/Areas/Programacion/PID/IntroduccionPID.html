@@ -17,9 +17,12 @@
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/translations.js?v=f85f4cfb"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="../../../genindex.html" />
-    <link rel="search" title="Búsqueda" href="../../../search.html" /> 
+    <link rel="search" title="Búsqueda" href="../../../search.html" />
+    <link rel="next" title="Contenedor (RobotContainer)" href="../Contenedor/Introduccion.html" />
+    <link rel="prev" title="Sensor de línea (TCRT5000)" href="../Componentes/TCRT5000.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,8 +50,29 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../RibEye/Rib-eye.html">RIB-EYE</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Áreas de SparX</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../Introduccion.html">Programación</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduccion.html">Programación</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#herramientas-utilizadas">Herramientas utilizadas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#retos-de-cada-semana">Retos de cada semana</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Introduccion.html#como-esta-pensado-el-codigo">Cómo está pensado el código</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Introduccion.html#resolucion-de-retos">Resolución de retos</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../Main/CicloPrincipal.html">Ciclo principal y modos de prueba</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ComponentesProgra.html">Configuración de componentes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Introducción</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#la-idea-en-tres-frases">La idea en tres frases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#construyendo-el-controlador-paso-a-paso">Construyendo el controlador paso a paso</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#como-lo-usa-el-robot">Cómo lo usa el robot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#como-tunear">Cómo tunear</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../Contenedor/Introduccion.html">Introducción al contenedor (RobotContainer)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../MaquinaEstados/Introduccion.html">Introducción a la máquina de estados (StateMachine)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Subsistemas/Introduccion.html">Introducción a los subsistemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Algoritmo/Planteamiento.html">Planteamiento de resolución de maze</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../Mecanica/Introduccion.html">Mecánica</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Electronica/Introduccion.html">Electrónica</a></li>
 </ul>
@@ -72,6 +96,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduccion.html">Área de Programación</a></li>
       <li class="breadcrumb-item active">Introducción a PID</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/Areas/Programacion/PID/IntroduccionPID.rst.txt" rel="nofollow"> Ver código fuente de la página</a>
@@ -84,12 +109,311 @@
              
   <section id="introduccion-a-pid">
 <h1>Introducción a PID<a class="headerlink" href="#introduccion-a-pid" title="Link to this heading"></a></h1>
+<p>Si le mandas la misma velocidad a los dos motores, el robot <strong>no va recto</strong>. Un motor es un poco más fuerte que el otro, una rueda patina más, el piso no es perfecto… y al final el robot se va chueco.
+La solución no es encontrar valores «perfectos» (no existen), sino <strong>corregir sobre la marcha</strong>: medir hacia dónde va, compararlo con hacia dónde debería ir y corregir la diferencia. A eso se le llama <strong>control con retroalimentación</strong>,
+y el PID es la forma más común de hacerlo.</p>
+<p>En RIB-EYE el PID se usa para dos cosas: <strong>ir recto</strong> y <strong>girar un ángulo exacto</strong>. En ambos casos el sensor es el BNO055 (ver <a class="reference internal" href="../Componentes/BNO055.html"><span class="doc">Unidad de Medicion Inercial (IMU) (BNO055)</span></a>) y la salida es una <strong>diferencia de velocidad</strong> entre los motores.</p>
+<section id="la-idea-en-tres-frases">
+<h2>La idea en tres frases<a class="headerlink" href="#la-idea-en-tres-frases" title="Link to this heading"></a></h2>
+<p>Todo parte del <strong>error</strong>, que es la diferencia entre lo que quiero y lo que tengo (por ejemplo, «quiero estar a 0° y estoy a 5°», el error es de 5°). El PID suma tres respuestas distintas a ese error:</p>
+<ul class="simple">
+<li><p><strong>P (proporcional):</strong> reacciona al error <strong>de ahora</strong>. Cuanto más lejos estoy, más fuerte corrijo.</p></li>
+<li><p><strong>I (integral):</strong> reacciona al error <strong>acumulado</strong>. Si llevo mucho tiempo un poquito desviado, corrijo más.</p></li>
+<li><p><strong>D (derivativa):</strong> reacciona a <strong>qué tan rápido me estoy moviendo</strong>. Sirve para frenar antes de pasarme.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[salida = K_p \cdot error + K_i \cdot \int error \, dt - K_d \cdot \frac{d(medicion)}{dt}\]</div>
+<p><code class="docutils literal notranslate"><span class="pre">Kp</span></code>, <code class="docutils literal notranslate"><span class="pre">Ki</span></code> y <code class="docutils literal notranslate"><span class="pre">Kd</span></code> son las <strong>ganancias</strong>: cuánto «peso» le damos a cada una. Encontrar sus valores es a lo que se le llama <strong>tunear</strong> el PID, y más abajo vemos cómo se hace.</p>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Una forma de imaginarlo es conducir un coche en carretera. <strong>P</strong> es girar el volante más fuerte cuanto más cerca estás de la orilla. <strong>D</strong> es notar que te acercas muy rápido a la orilla y corregir antes.
+<strong>I</strong> es darte cuenta de que el coche siempre se jala un poco a la derecha y compensarlo.</p>
+</div>
+</section>
+<section id="construyendo-el-controlador-paso-a-paso">
+<h2>Construyendo el controlador paso a paso<a class="headerlink" href="#construyendo-el-controlador-paso-a-paso" title="Link to this heading"></a></h2>
+<p>No hace falta entender todo de golpe. El <code class="docutils literal notranslate"><span class="pre">PIDController</span></code> se construye agregando una pieza a la vez, y cada pieza resuelve <strong>un problema que se encontró en la práctica</strong>.</p>
+<section id="la-base-p-y-los-limites">
+<h3>1. La base: P y los límites<a class="headerlink" href="#la-base-p-y-los-limites" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Constructor y término proporcional (PIDController.cpp)</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PIDController</span><span class="o">::</span><span class="n">PIDController</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">kp</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">ki</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">kd</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">minOutput</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">maxOutput</span><span class="p">)</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">pT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_kp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>El constructor recibe las tres ganancias y <strong>los límites de la salida</strong>. Aquí la salida es directamente un <strong>PWM</strong>, así que por defecto va de -255 a 255 (el rango de los motores).
+Un PID sin límites puede pedir «velocidad 5000» y eso no existe.</p>
+</section>
+<section id="el-tiempo-real-dt">
+<h3>2. El tiempo real (dt)<a class="headerlink" href="#el-tiempo-real-dt" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Calcular dt (PIDController.cpp)</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">m</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastMicros</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000000.0f</span><span class="p">;</span>
+<span class="n">lastMicros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">;</span>
+
+<span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">measurement</span><span class="p">,</span><span class="w"> </span><span class="n">setpoint</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>La integral y la derivada <strong>dependen del tiempo</strong> (cuánto llevo así, qué tan rápido cambió). Por eso el PID mide el <code class="docutils literal notranslate"><span class="pre">dt</span></code> real entre llamadas en lugar de suponer que siempre son 20 ms.
+Aun así, el ciclo principal corre a un periodo fijo (ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>) para que ese <code class="docutils literal notranslate"><span class="pre">dt</span></code> sea siempre parecido.</p>
+<p>Además, la <strong>primera</strong> llamada no devuelve una corrección: solo guarda el tiempo y la medición y regresa 0. Sin esto, el primer <code class="docutils literal notranslate"><span class="pre">dt</span></code> sería enorme (desde que arrancó el robot) y daría una salida absurda.</p>
+</section>
+<section id="la-integral-y-el-windup">
+<h3>3. La integral y el «windup»<a class="headerlink" href="#la-integral-y-el-windup" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Integral con límite (PIDController.cpp)</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">integral_pp</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dt</span><span class="p">;</span>
+
+<span class="kt">float</span><span class="w"> </span><span class="n">maxI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">_ki</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">_maxOutput</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">_ki</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">;</span>
+<span class="n">integral_pp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">(</span><span class="n">integral_pp</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">maxI</span><span class="p">,</span><span class="w"> </span><span class="n">maxI</span><span class="p">);</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">iT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_ki</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">integral_pp</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>La integral <strong>suma el error con el tiempo</strong>. El peligro es el <em>windup</em>: si el robot está atorado (por ejemplo, contra una pared), el error no desaparece y la integral <strong>crece y crece</strong>. Cuando el robot al fin se libera, esa integral
+gigante lo manda disparado.</p>
+<p>La solución es <strong>limitar la integral</strong> a un valor tal que su aporte nunca pase de la salida máxima (<code class="docutils literal notranslate"><span class="pre">maxOutput</span> <span class="pre">/</span> <span class="pre">ki</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>En RIB-EYE <strong>Ki vale 0</strong> (la integral no se usa). Con P y D fue suficiente. Solo conviene agregar Ki si, después de tunear P y D, el robot <strong>se queda siempre con un pequeño error constante</strong> que P no logra quitar.</p>
+</div>
+</section>
+<section id="la-derivada-sobre-la-medicion-y-filtrada">
+<h3>4. La derivada: sobre la medición y filtrada<a class="headerlink" href="#la-derivada-sobre-la-medicion-y-filtrada" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Derivada filtrada (PIDController.cpp)</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="n">dMeas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_angleWrapping</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">CWErr</span><span class="p">(</span><span class="n">measurement</span><span class="p">,</span><span class="w"> </span><span class="n">lastMeasurement</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">measurement</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastMeasurement</span><span class="p">);</span>
+<span class="n">lastMeasurement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">measurement</span><span class="p">;</span>
+<span class="n">lastD</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">kDAlpha</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">((</span><span class="n">dMeas</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastD</span><span class="p">);</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">dT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">_kd</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">lastD</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Hay dos decisiones aquí:</p>
+<ul class="simple">
+<li><p><strong>Se deriva la medición, no el error.</strong> Cuando cambias el objetivo de golpe (por ejemplo, «ahora gira 90°»), el error salta de un instante a otro y su derivada sería <strong>enorme</strong> (un «golpe» o <em>derivative kick</em>).
+La medición, en cambio, cambia suavemente porque el robot es un objeto físico. El signo menos de <code class="docutils literal notranslate"><span class="pre">dT</span></code> viene de esto: se frena cuando la medición se mueve rápido.</p></li>
+<li><p><strong>Se filtra.</strong> Derivar amplifica el ruido: una lectura con pequeñas variaciones da una derivada muy nerviosa. El filtro (<code class="docutils literal notranslate"><span class="pre">kDAlpha</span> <span class="pre">=</span> <span class="pre">0.3</span></code>) <strong>mezcla un 30% de la lectura nueva con el 70% de lo anterior</strong>, suavizando el resultado.</p></li>
+</ul>
+</section>
+<section id="sumar-y-limitar">
+<h3>5. Sumar y limitar<a class="headerlink" href="#sumar-y-limitar" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">La salida (PIDController.cpp)</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">lastOutput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">constrain</span><span class="p">(</span><span class="n">pT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">iT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dT</span><span class="p">,</span><span class="w"> </span><span class="n">_minOuput</span><span class="p">,</span><span class="w"> </span><span class="n">_maxOutput</span><span class="p">);</span>
+<span class="k">return</span><span class="w"> </span><span class="n">lastOutput</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<p>Se suman las tres respuestas y se limita al rango permitido.</p>
+</section>
+<section id="los-angulos-dan-la-vuelta">
+<h3>6. Los ángulos dan la vuelta<a class="headerlink" href="#los-angulos-dan-la-vuelta" title="Link to this heading"></a></h3>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Error por el camino corto (PIDController.cpp)</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">float</span><span class="w"> </span><span class="nf">PIDController::CWErr</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">setpoint</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">measurement</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setpoint</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">measurement</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">M_PI</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="o">-</span><span class="n">M_PI</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">2.0f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Los ángulos son circulares: 359° y 1° están a solo 2° de distancia, pero restados dan 358°. Si el PID usara esa resta, el robot daría casi una vuelta completa <strong>en la dirección equivocada</strong>.
+Con <code class="docutils literal notranslate"><span class="pre">setAngleWrapping(true)</span></code> el error se ajusta para que siempre sea <strong>por el camino más corto</strong> (entre -π y π).</p>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Los ángulos del PID están en <strong>radianes</strong>, no en grados. El robot convierte con <code class="docutils literal notranslate"><span class="pre">kDegToRad</span></code> antes de usarlos. Esto importa al tunear: las ganancias <code class="docutils literal notranslate"><span class="pre">Kp</span></code> que verás en la tabla de abajo son «PWM por <strong>radián</strong> de error».</p>
+</div>
+</section>
+<section id="empezar-de-cero">
+<h3>7. Empezar de cero<a class="headerlink" href="#empezar-de-cero" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">reset()</span></code> borra la integral, la derivada y el tiempo guardados. Se llama <strong>al inicio de cada movimiento nuevo</strong> (ver <a class="reference internal" href="../Subsistemas/Introduccion.html"><span class="doc">Subsistemas (Subsystems)</span></a>), porque si el PID conserva lo que «aprendió» en el movimiento
+anterior, los primeros instantes del siguiente salen mal.</p>
+</section>
+</section>
+<section id="como-lo-usa-el-robot">
+<h2>Cómo lo usa el robot<a class="headerlink" href="#como-lo-usa-el-robot" title="Link to this heading"></a></h2>
+<p>El <code class="docutils literal notranslate"><span class="pre">Drive</span></code> tiene <strong>dos PID</strong>, uno para cada trabajo:</p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">Los dos PID (Drive.cpp)</span><a class="headerlink" href="#id7" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">_steerPID</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kYawKp</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kYawKi</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kYawKd</span><span class="p">,</span><span class="w"> </span><span class="mf">-255.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">255.0f</span><span class="p">),</span>
+<span class="n">_turnPID</span><span class="p">(</span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerKp</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">,</span><span class="w"> </span><span class="n">Cfg</span><span class="o">::</span><span class="n">kSteerKd</span><span class="p">,</span><span class="w"> </span><span class="mf">-255.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">255.0f</span><span class="p">),</span>
+</pre></div>
+</div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 22.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>PID</p></th>
+<th class="head"><p>Constantes</p></th>
+<th class="head"><p>Qué hace</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_steerPID</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kYawKp</span></code>, <code class="docutils literal notranslate"><span class="pre">kYawKi</span></code>, <code class="docutils literal notranslate"><span class="pre">kYawKd</span></code></p></td>
+<td><p><strong>Ir recto.</strong> Compara el yaw con el rumbo deseado y devuelve cuánto hay que <strong>restarle a un motor y sumarle al otro</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_turnPID</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kSteerKp</span></code>, <code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code></p></td>
+<td><p><strong>Girar en su lugar.</strong> Los dos motores giran en sentidos opuestos hasta llegar al ángulo.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Son dos PID separados porque <strong>no tienen las mismas necesidades</strong>: ir recto necesita correcciones pequeñas y suaves, y girar necesita arrancar con fuerza y frenar con precisión.</p>
+<section id="los-valores-actuales">
+<h3>Los valores actuales<a class="headerlink" href="#los-valores-actuales" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 12.0%" />
+<col style="width: 66.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Constante</p></th>
+<th class="head"><p>Valor</p></th>
+<th class="head"><p>Qué controla</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kYawKp</span></code></p></td>
+<td><p>220</p></td>
+<td><p>Recto: fuerza de la corrección. 1° de error son unos 3.8 PWM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kYawKi</span></code></p></td>
+<td><p>0</p></td>
+<td><p>Recto: sin integral.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kYawKd</span></code></p></td>
+<td><p>6</p></td>
+<td><p>Recto: amortigua el zigzag.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kMaxSteer</span></code></p></td>
+<td><p>40</p></td>
+<td><p>Recto: tope de la corrección (se alcanza con ~10° de error).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kSteerKp</span></code></p></td>
+<td><p>180</p></td>
+<td><p>Giro: fuerza (1° de error son unos 3.1 PWM).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code></p></td>
+<td><p>12</p></td>
+<td><p>Giro: frena antes de pasarse.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> / <code class="docutils literal notranslate"><span class="pre">kSteerMax</span></code></p></td>
+<td><p>110 / 180</p></td>
+<td><p>Giro: PWM mínimo y máximo permitidos.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kSteerTol</span></code></p></td>
+<td><p>2.5°</p></td>
+<td><p>Giro: error con el que se da por terminado.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kSteerST</span></code></p></td>
+<td><p>5</p></td>
+<td><p>Giro: ciclos seguidos dentro de la tolerancia (5 x 20 ms) antes de aceptar el giro.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition important">
+<p class="admonition-title">Importante</p>
+<p>Estos valores son <strong>de nuestro robot</strong>, con sus motores, su peso y su piso. <strong>No los copies</strong>: sirven para tener un punto de partida, no para que los uses directamente.</p>
+</div>
+</section>
+</section>
+<section id="como-tunear">
+<h2>Cómo tunear<a class="headerlink" href="#como-tunear" title="Link to this heading"></a></h2>
+<p>Tunear es probar, observar y ajustar. Lo importante es hacerlo <strong>en orden y de a una constante a la vez</strong>.</p>
+<section id="antes-de-empezar">
+<h3>Antes de empezar<a class="headerlink" href="#antes-de-empezar" title="Link to this heading"></a></h3>
+<p>Revisa que lo demás funcione, o vas a «tunear» un problema que no es del PID:</p>
+<ol class="arabic simple">
+<li><p>Los sensores dan lecturas buenas (modo de prueba 6, ver <a class="reference internal" href="../Main/CicloPrincipal.html"><span class="doc">Ciclo principal y modos de prueba</span></a>).</p></li>
+<li><p>Los motores giran en el sentido correcto (modo 2).</p></li>
+<li><p>Conoces el <strong>PWM mínimo con el que el robot realmente se mueve</strong> (la <em>zona muerta</em>). Por debajo de ese valor los motores zumban pero no giran.
+En nuestro caso es alrededor de <strong>110</strong> (es el origen de <code class="docutils literal notranslate"><span class="pre">kMinOutput</span></code> y <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code>). Un PID cuya salida cae dentro de la zona muerta <strong>no hace nada</strong>.</p></li>
+</ol>
+</section>
+<section id="ir-recto-kyawkp-y-kyawkd">
+<h3>Ir recto (<code class="docutils literal notranslate"><span class="pre">kYawKp</span></code> y <code class="docutils literal notranslate"><span class="pre">kYawKd</span></code>)<a class="headerlink" href="#ir-recto-kyawkp-y-kyawkd" title="Link to this heading"></a></h3>
+<p>Usa el modo 3, que avanza una casilla y <strong>reporta cuánto se desvió del rumbo</strong>.</p>
+<ol class="arabic simple">
+<li><p>Pon <code class="docutils literal notranslate"><span class="pre">Ki</span></code> y <code class="docutils literal notranslate"><span class="pre">Kd</span></code> en 0.</p></li>
+<li><p><strong>Sube Kp</strong> poco a poco. Al principio el robot sigue chueco; mientras sube, corrige más. Cuando empieza a hacer <strong>zigzag</strong> (oscila de un lado a otro), te pasaste. Baja Kp a más o menos <strong>la mitad o dos tercios</strong> de ese valor.</p></li>
+<li><p><strong>Sube Kd</strong> hasta que el zigzag desaparezca. Si lo subes demasiado, los motores se ponen «nerviosos» (vibran o zumban) porque el D amplifica el ruido.</p></li>
+<li><p>Solo si queda un error constante, prueba una <code class="docutils literal notranslate"><span class="pre">Ki</span></code> muy pequeña.</p></li>
+</ol>
+</section>
+<section id="girar-ksteerkp-ksteerkd-ksteermin">
+<h3>Girar (<code class="docutils literal notranslate"><span class="pre">kSteerKp</span></code>, <code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code>, <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code>)<a class="headerlink" href="#girar-ksteerkp-ksteerkd-ksteermin" title="Link to this heading"></a></h3>
+<p>El modo 3 no prueba giros; para ello usa el modo 4 (la máquina de estados hace giros de 90° contra una pared) o el 5.</p>
+<p>Con las constantes actuales hay algo que conviene entender: como <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> es 110 y <code class="docutils literal notranslate"><span class="pre">kSteerKp</span></code> es 180, la salida del PID baja de 110 cuando el error es <strong>menor a unos 35°</strong> (110 / 180 rad).
+Desde ahí y hasta que el error entra en la tolerancia (2.5°), el robot gira con <strong>el PWM mínimo fijo</strong> (+110 o -110, según el signo del error), y en ese momento se detienen los motores.</p>
+<p>Esto significa que, en la práctica, <code class="docutils literal notranslate"><span class="pre">Kp</span></code> y <code class="docutils literal notranslate"><span class="pre">Kd</span></code> solo mandan en <strong>la primera parte del giro</strong> (con error mayor a ~35°), y que la precisión final la deciden <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code>, <code class="docutils literal notranslate"><span class="pre">kSteerTol</span></code> y <code class="docutils literal notranslate"><span class="pre">kSteerST</span></code>. Por eso:</p>
+<ul class="simple">
+<li><p>Si el robot <strong>se pasa del ángulo</strong> al final del giro: baja <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> (llega con menos inercia, siempre que el robot aún se mueva) o sube <code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code> (la salida baja al PWM mínimo antes, así que llega más lento).</p></li>
+<li><p>Si el robot <strong>se queda corto</strong> y no llega: sube <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> (puede estar bajo la zona muerta) o baja <code class="docutils literal notranslate"><span class="pre">kSteerTol</span></code>.</p></li>
+<li><p>Si el giro es <strong>muy lento</strong>: sube <code class="docutils literal notranslate"><span class="pre">kSteerMax</span></code> o <code class="docutils literal notranslate"><span class="pre">kSteerKp</span></code> (aceleran la primera parte) y revisa que <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> no sea demasiado bajo.</p></li>
+</ul>
+</section>
+<section id="sintomas-y-que-hacer">
+<h3>Síntomas y qué hacer<a class="headerlink" href="#sintomas-y-que-hacer" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Lo que ves</p></th>
+<th class="head"><p>Qué probar</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Hace zigzag al ir recto</p></td>
+<td><p>Bajar <code class="docutils literal notranslate"><span class="pre">kYawKp</span></code> o subir <code class="docutils literal notranslate"><span class="pre">kYawKd</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Va chueco siempre al mismo lado y no corrige</p></td>
+<td><p>Subir <code class="docutils literal notranslate"><span class="pre">kYawKp</span></code>. Si un motor es más fuerte, ajustar <code class="docutils literal notranslate"><span class="pre">kTrim</span></code> (ver <a class="reference internal" href="../Subsistemas/Introduccion.html"><span class="doc">Subsistemas (Subsystems)</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>Los motores vibran o zumban</p></td>
+<td><p>Bajar <code class="docutils literal notranslate"><span class="pre">kYawKd</span></code> o <code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code> (están amplificando ruido).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Se pasa del ángulo al girar</p></td>
+<td><p>Subir <code class="docutils literal notranslate"><span class="pre">kSteerKd</span></code> o bajar <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>No termina nunca de girar</p></td>
+<td><p>Subir <code class="docutils literal notranslate"><span class="pre">kSteerTol</span></code> o revisar que <code class="docutils literal notranslate"><span class="pre">kSteerMin</span></code> supere la zona muerta.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tarda mucho en dar por terminado el giro</p></td>
+<td><p>Bajar <code class="docutils literal notranslate"><span class="pre">kSteerST</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Truco</p>
+<p>Anota <strong>cada cambio y su resultado</strong>. Con tantas constantes, es muy fácil olvidar cuál fue la que mejoró (o empeoró) el comportamiento.</p>
+</div>
+</section>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="../Componentes/TCRT5000.html" class="btn btn-neutral float-left" title="Sensor de línea (TCRT5000)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="../Contenedor/Introduccion.html" class="btn btn-neutral float-right" title="Contenedor (RobotContainer)" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -1,4 +1,136 @@
-#########################
-Sensor de color TCS34725
-#########################
+##############################
+Sensor de color (TCS34725)
+##############################
 
+El TCS34725 mira el piso y nos dice **de qué color es la casilla**. En el maze el color es información del reto (inicio, fin, colores a escanear) y en Levels es literalmente el camino que hay que seguir.
+Esta página responde dos preguntas: **cómo se lee el sensor** y **cómo se convierte una lectura en el nombre de un color**.
+
+Por qué normalizar
+*******************
+
+El sensor entrega cuatro números: **C** (luz total, canal *clear*), **R**, **G** y **B**. El problema de usar R, G y B tal cual es que **cambian con la luz y con la distancia al piso**: el mismo rojo se
+lee con valores muy distintos si el robot se inclina un poco o si cambia la iluminación del salón.
+
+.. code-block:: cpp
+    :caption: Normalizar con el canal clear (ColorSensor.cpp)
+
+    if(readRegisters(c, r, g, b) && c > 0) {
+        lastRGB.r = (float)r / c * 255.0f;
+        lastRGB.g = (float)g / c * 255.0f;
+        lastRGB.b = (float)b / c * 255.0f;
+    }
+
+La idea es dividir cada canal entre el total de luz. Así ya no importa **cuánta** luz llegó, sino **qué proporción** de esa luz era roja, verde o azul, y esa proporción sí es característica del color.
+El ``* 255`` es solo para tener números cómodos (como un RGB normal).
+
+.. important::
+    Aun así la luz del lugar afecta. **Calibra los colores en el mismo lugar y con la misma iluminación en la que vas a competir.**
+
+Construyendo la clase
+**********************
+
+1. Configuración del sensor
+============================
+
+.. code-block:: cpp
+    :caption: Tiempo de integración y ganancia (ColorSensor.cpp)
+
+    : tcs(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X),
+
+- **Tiempo de integración (50 ms):** cuánto tiempo "mira" el sensor antes de entregar un dato. Más tiempo = lectura más estable pero más lenta. 50 ms es un buen punto medio para un robot que se mueve.
+- **Ganancia (4X):** qué tanto amplifica la señal. Si el piso es oscuro y las lecturas salen muy bajas, súbela. Si se **satura** (los valores se quedan pegados al máximo), bájala.
+
+2. Leer sin bloquear
+=====================
+
+.. code-block:: cpp
+    :caption: Lectura periódica (ColorSensor.cpp)
+
+    bool ColorSensor::readAsync(RGB &color, unsigned long intervalMS) {
+        if(!isInit) return false;
+        unsigned long currentMillis = millis();
+        if(currentMillis - lastReadTime >= intervalMS) {
+            lastReadTime = currentMillis;
+
+``readAsync`` solo habla con el sensor cada ``intervalMS`` (100 ms por defecto). Si todavía no toca, **regresa la última lectura** con ``false`` para avisar que no es nueva. Es la misma idea de siempre (ver :doc:`../ComponentesProgra`):
+nunca esperar.
+
+3. Una sola transacción I2C
+============================
+
+.. code-block:: cpp
+    :caption: Leer los 4 canales de golpe (ColorSensor.cpp)
+
+    constexpr uint8_t kCmdAutoInc = 0x80 | 0x20; // bit y autoincremento
+    constexpr uint8_t kRegCDataL = 0x14; // 2 bytes, LSB primero
+
+    Wire.beginTransmission(i2c);
+    Wire.write(kCmdAutoInc | kRegCDataL);
+    if(Wire.endTransmission() != 0) return false;
+    if(Wire.requestFrom(i2c, (uint8_t)8) != 8) return false;
+
+En lugar de pedir cada canal por separado, se leen los **8 bytes de golpe** (2 bytes por cada canal C, R, G y B) con el *auto-incremento* del sensor. Menos mensajes por el bus I2C significa menos tiempo
+ocupado y menos oportunidades de error. Estos valores salen de la hoja de datos del sensor.
+
+.. tip::
+    Si el bus I2C devuelve algo distinto a los 8 bytes esperados, la función regresa ``false`` y **se conserva la lectura anterior**. Un error aislado no afecta al robot.
+
+4. El LED
+==========
+
+.. code-block:: cpp
+    :caption: Encender el LED del módulo (ColorSensor.cpp)
+
+    void ColorSensor::setLed(bool s) {
+        if(!isInit) return;
+        tcs.setInterrupt(!s);
+    }
+
+El módulo trae un LED blanco que ilumina el piso, para que la lectura **no dependa de la luz del salón**. En este módulo, el LED está conectado al pin de interrupción, por eso se prende con ``setInterrupt(false)``
+(de ahí el ``!s``).
+
+De RGB a nombre de color
+*************************
+
+Ahora tenemos tres números por cada lectura. Falta convertirlos en "esto es AMARILLO". Esto se hace en el contenedor (ver :doc:`../Contenedor/Introduccion`) con una **tabla de colores de referencia**:
+
+.. code-block:: cpp
+    :caption: Tabla de colores (RobotContainer.cpp)
+
+    const float TOLERANCE = 15.0f;
+
+    const Target TABLE[] {
+        {ColorDetected::RED, {180.0f, 70.0f, 60.0f}},
+        {ColorDetected::CYAN, {60.0f, 115.0f, 110.0f}},
+        {ColorDetected::YELLOW, {120.0f, 110.0f, 50.0f}},
+    };
+
+    bool inRange(const RGB& current, const RGB& target, float t) {
+        return (fabsf(current.r - target.r) <= t) && (fabsf(current.g - target.g) <= t) && (fabsf(current.b - target.b) <= t);
+    }
+
+(La tabla real tiene los 7 colores; aquí se muestran 3 como ejemplo.)
+
+La lectura se compara con cada color de la tabla. Si **los tres canales** están a menos de ``TOLERANCE`` del valor de referencia, es ese color.
+
+Por qué así (y qué limitaciones tiene)
+=======================================
+
+- **Es muy simple:** una tabla y una comparación. Se entiende en un minuto y se ajusta a mano.
+- **El orden importa.** Se regresa el **primer** color que coincida. Si dos colores son parecidos (por ejemplo ``RED`` y ``MAGENTA``), sus "cajas" de tolerancia se **traslapan** y gana el que esté antes en la tabla.
+- **Si nadie coincide** el resultado es ``NONE``. Es mejor decir "no sé" que equivocarse de color.
+
+Cómo calibrar
+==============
+
+1. Carga el modo de **prueba de color** (ver :doc:`../Main/CicloPrincipal`). Imprime los valores ``R``, ``G`` y ``B`` en vivo y el nombre que detecta.
+2. Pon el sensor **sobre cada color de la pista**, a la altura real a la que va en el robot, y anota los valores estables.
+3. Actualiza la ``TABLE`` con esos valores.
+4. Si dos colores se confunden: separa sus valores en la tabla, **baja la tolerancia** o pon primero el más importante.
+5. Si un color casi nunca se detecta: **sube la tolerancia** (``TOLERANCE``) un poco, o revisa que los valores de la tabla sean los medidos.
+
+.. important::
+    En nuestra tabla, el color ``LIME`` está marcado como **estimado** (entre ``GREEN`` y ``YELLOW``) y hay que calibrarlo con el modo de prueba de color antes de usarlo.
+
+.. note::
+    Para el maze y Levels el robot no se fía de **una** lectura: toma **varias durante una ventana de tiempo y vota** el color que más se repite (ver :doc:`../MaquinaEstados/Introduccion`). Así una lectura mala no cambia la decisión.

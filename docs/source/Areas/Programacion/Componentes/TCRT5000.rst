@@ -1,0 +1,70 @@
+###############################
+Sensor de línea (TCRT5000)
+###############################
+
+En el reto Levels hay **líneas blancas** en el piso que el robot no puede cruzar. Para verlas se usan **dos sensores TCRT5000** apuntando al piso, uno de cada lado. Este sensor manda luz infrarroja y mide
+cuánta **regresa**: el piso verde refleja poco y la cinta blanca refleja mucho.
+
+El problema es el mismo de siempre: **una lectura analógica no es una decisión**. La clase ``LineSensor`` convierte un número entre 0 y 4095 en una respuesta clara: ``isWhite()``.
+
+Construyendo la decisión
+*************************
+
+1. Una lectura analógica
+=========================
+
+.. code-block:: cpp
+    :caption: Valores de calibración (levelsConfig.h)
+
+    constexpr bool kDigital = false;
+    constexpr bool kWhiteIsHigh = false;
+    constexpr uint16_t kThreshold = 2000;
+
+- **kDigital:** el módulo tiene una salida digital (con un potenciómetro para el umbral) y una analógica. Usamos la **analógica** para poder ajustar el umbral por código, sin atornillar nada.
+- **kWhiteIsHigh:** en la mayoría de estos módulos, **más reflejo baja el valor** leído, así que el blanco da un número *menor* que el piso. Si en el tuyo es al revés, cambia este ``bool``.
+- **kThreshold:** el valor (de 0 a 4095, porque el ADC de la ESP32 es de 12 bits) que separa "piso" de "línea".
+
+2. Histéresis: dos umbrales en lugar de uno
+============================================
+
+Si el robot está justo sobre el borde de la línea, la lectura **oscila** alrededor del umbral y la respuesta parpadea entre blanco y no blanco. La solución es la **histéresis**: para pasar a "blanco" hay que cruzar
+el umbral **por un lado**, y para volver a "no blanco" hay que cruzarlo **por el otro**.
+
+.. code-block:: cpp
+    :caption: Histéresis (LineSensor.cpp)
+
+    const int thr = LineConfig::kThreshold;
+    const int hys = LineConfig::kHysteresis;
+    const int level = LineConfig::kWhiteIsHigh ? (int)_raw : -(int)_raw;
+    const int limit = LineConfig::kWhiteIsHigh ? thr : -thr;
+
+    const bool candidate = _white ? (level > limit - hys) : (level > limit + hys);
+
+La primera parte (``level`` y ``limit``) **voltea el signo** cuando el blanco da valores menores, para escribir la comparación una sola vez. Después, el candidato se evalúa contra
+``limit + hys`` si estaba "apagado" y contra ``limit - hys`` si estaba "encendido". Con ``kHysteresis = 150`` hay una "zona muerta" de 300 unidades en la que la respuesta no cambia.
+
+3. Confirmar antes de creer
+============================
+
+.. code-block:: cpp
+    :caption: Confirmación (LineSensor.cpp)
+
+    if (++_count >= LineConfig::kConfirm) {
+        _white = candidate;
+        _count = 0;
+    }
+
+Además de la histéresis, el cambio **no se acepta a la primera**: hay que ver el mismo resultado ``kConfirm`` veces seguidas (2 lecturas, de 20 ms cada una). Es un costo pequeño en tiempo de reacción
+a cambio de no frenar por una lectura mala.
+
+Cómo calibrarlo
+****************
+
+1. Carga el modo de **prueba de sensores** (ver :doc:`../Main/CicloPrincipal`). Imprime el valor crudo de cada TCRT5000 y si lo considera blanco.
+2. Anota el valor crudo **sobre el piso verde** y **sobre la cinta blanca**.
+3. Pon ``kThreshold`` **a la mitad** entre ambos.
+4. Si el robot "parpadea" cerca de la línea, **sube** ``kHysteresis``. Si tarda en verla, **bájala** o baja ``kConfirm``.
+
+.. important::
+    Los pines de los sensores (GPIO36 y GPIO39) son **solo de entrada** y pertenecen al ADC1, que no choca con el Bluetooth (el ADC2 sí). Además, el módulo se alimenta a **3.3 V** para que su salida analógica
+    nunca pase de lo que soporta la ESP32.
